@@ -246,16 +246,16 @@ section+section{border-top:1px solid var(--rule)}
 .oc-l{font-size:11px;color:var(--ink3);font-weight:500}
 
 /* REFLECT */
-.rg{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:28px}
-.rc{padding:22px;border-radius:10px;border:1px solid var(--rule)}
-.rc.dk{background:var(--dark);border-color:var(--bd);color:#94A3B8}
+.rg{display:grid;grid-template-columns:1fr 1fr;gap:1px;margin-top:28px;border:1px solid var(--rule)}
+.rc{padding:28px 30px;background:var(--surface);border:none}
+.rc.dk{background:var(--surface)}
 .rc.lt{background:var(--surface)}
-.rc-i{font-size:22px;margin-bottom:9px}
-.rc-t{font-size:13px;font-weight:700;margin-bottom:7px}
-.rc.dk .rc-t{color:#E2E8F0}
-.rc-b{font-size:12px;line-height:1.65;color:var(--ink2)}
-.rc.dk .rc-b{color:#475569}
-.rc.dk strong{color:#94A3B8}
+.rc-i{display:none}
+.rc-t{font-size:11px;font-weight:700;color:var(--ink3);text-transform:uppercase;letter-spacing:.1em;margin-bottom:10px}
+.rc.dk .rc-t{color:var(--ink3)}
+.rc-b{font-size:13px;line-height:1.75;color:var(--ink2)}
+.rc.dk .rc-b{color:var(--ink2)}
+.rc.dk strong{color:var(--ink)}
 
 /* INSIGHT */
 .iq{margin:28px 0;padding:26px 32px;background:var(--dark);border-radius:12px}
@@ -744,10 +744,1073 @@ body{padding-top:66px}
         <!-- The iframe -->
         <div style="position:relative;height:560px;background:#030712">
           <iframe
-            src="finops-prototype.html"
+            srcdoc="<!DOCTYPE html>
+<html lang=&quot;en&quot;>
+<head>
+<meta charset=&quot;UTF-8&quot;>
+<meta name=&quot;viewport&quot; content=&quot;width=device-width, initial-scale=1.0&quot;>
+<title>CloudView FinOps — Interactive Prototype</title>
+<script src=&quot;https://unpkg.com/react@18/umd/react.production.min.js&quot;></script>
+<script src=&quot;https://unpkg.com/react-dom@18/umd/react-dom.production.min.js&quot;></script>
+<script src=&quot;https://unpkg.com/@babel/standalone/babel.min.js&quot;></script>
+<script src=&quot;https://cdn.tailwindcss.com&quot;></script>
+<style>
+  * { box-sizing: border-box; }
+  body { margin: 0; font-family: 'Inter', ui-sans-serif, system-ui, sans-serif; background: #030712; }
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&amp;family=JetBrains+Mono:wght@400;500;600&amp;display=swap');
+  .font-mono { font-family: 'JetBrains Mono', 'Fira Code', ui-monospace, monospace; }
+  ::-webkit-scrollbar { width: 4px; height: 4px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: #374151; border-radius: 2px; }
+  select option { background: #1F2937; color: #D1D5DB; }
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: .4; }
+  }
+  .animate-pulse { animation: pulse 2s cubic-bezier(0.4,0,0.6,1) infinite; }
+</style>
+</head>
+<body>
+<div id=&quot;root&quot;></div>
+<script type=&quot;text/babel&quot; data-presets=&quot;react&quot;>
+const { useState } = React;
+
+// ─────────────────────────────────────────────
+// MOCK DATA
+// ─────────────────────────────────────────────
+const MOCK = {
+  budget: { monthly: 6000000, mtd: 4821340, forecast: 6490000 },
+  momChange: { pct: 15.07, abs: 631000, driver: &quot;EC2 On-Demand&quot; },
+
+  monthlyTrend: [
+    { day: &quot;Mar 1&quot;, actual: 148000 }, { day: &quot;Mar 2&quot;, actual: 162000 },
+    { day: &quot;Mar 3&quot;, actual: 155000 }, { day: &quot;Mar 4&quot;, actual: 171000 },
+    { day: &quot;Mar 5&quot;, actual: 168000 }, { day: &quot;Mar 6&quot;, actual: 179000 },
+    { day: &quot;Mar 7&quot;, actual: 214000 },
+    { day: &quot;Mar 8&quot;, forecast: 218000 }, { day: &quot;Mar 9&quot;, forecast: 212000 },
+    { day: &quot;Mar 10&quot;, forecast: 225000 }, { day: &quot;Mar 15&quot;, forecast: 219000 },
+    { day: &quot;Mar 20&quot;, forecast: 231000 }, { day: &quot;Mar 25&quot;, forecast: 228000 },
+    { day: &quot;Mar 31&quot;, forecast: 243000 },
+  ],
+
+  costByService: [
+    { id: &quot;ec2&quot;, name: &quot;EC2 Compute&quot;, mtd: 2140000, mom: 22, color: &quot;#3B82F6&quot;,
+      breakdown: [
+        { name: &quot;On-Demand · prod&quot;, cost: 1240000, mom: 28 },
+        { name: &quot;On-Demand · staging&quot;, cost: 380000, mom: 12 },
+        { name: &quot;Reserved Instances&quot;, cost: 420000, mom: -3 },
+        { name: &quot;Spot Instances&quot;, cost: 100000, mom: 5 },
+      ]
+    },
+    { id: &quot;rds&quot;, name: &quot;RDS&quot;, mtd: 980000, mom: 3, color: &quot;#8B5CF6&quot;,
+      breakdown: [
+        { name: &quot;db.r5.2xlarge · prod-mysql-01&quot;, cost: 620000, mom: 2 },
+        { name: &quot;db.t3.medium · staging&quot;, cost: 180000, mom: 8 },
+        { name: &quot;Aurora Serverless · analytics&quot;, cost: 180000, mom: -1 },
+      ]
+    },
+    { id: &quot;transfer&quot;, name: &quot;Data Transfer&quot;, mtd: 624000, mom: 41, color: &quot;#F59E0B&quot;,
+      breakdown: [
+        { name: &quot;NAT Gateway · vpc-0a3f…d21&quot;, cost: 312000, mom: 89 },
+        { name: &quot;Cross-AZ transfer&quot;, cost: 198000, mom: 22 },
+        { name: &quot;CloudFront egress&quot;, cost: 114000, mom: 8 },
+      ]
+    },
+    { id: &quot;s3&quot;, name: &quot;S3&quot;, mtd: 490000, mom: 8, color: &quot;#10B981&quot;,
+      breakdown: [
+        { name: &quot;ml-training-data (GET)&quot;, cost: 218000, mom: 34 },
+        { name: &quot;prod-assets&quot;, cost: 142000, mom: 3 },
+        { name: &quot;log-archive&quot;, cost: 130000, mom: -2 },
+      ]
+    },
+    { id: &quot;lambda&quot;, name: &quot;Lambda&quot;, mtd: 380000, mom: -5, color: &quot;#F97316&quot;,
+      breakdown: [
+        { name: &quot;data-etl-job&quot;, cost: 180000, mom: -8 },
+        { name: &quot;api-gateway-handler&quot;, cost: 120000, mom: 2 },
+        { name: &quot;cron-jobs&quot;, cost: 80000, mom: -14 },
+      ]
+    },
+    { id: &quot;other&quot;, name: &quot;Other&quot;, mtd: 207340, mom: 6, color: &quot;#6B7280&quot;,
+      breakdown: [
+        { name: &quot;CloudWatch Logs&quot;, cost: 98000, mom: 12 },
+        { name: &quot;Secrets Manager&quot;, cost: 62000, mom: 3 },
+        { name: &quot;Misc&quot;, cost: 47340, mom: 1 },
+      ]
+    },
+  ],
+
+  instances: [
+    { id: &quot;i-0a1b2c3d4e5f001&quot;, name: &quot;prod-web-01&quot;, type: &quot;t3.large&quot;, region: &quot;cn-north-1a&quot;, status: &quot;running&quot;, cpu: 78, mem: 64, cost: 142000, tag: &quot;team:platform&quot;, trend: [45,52,61,70,74,78,76,78], uptime: &quot;47d&quot;, recommendation: &quot;High CPU — consider upgrading to t3.xlarge. Est. cost increase: ¥28K/mo.&quot; },
+    { id: &quot;i-0a1b2c3d4e5f002&quot;, name: &quot;prod-api-02&quot;, type: &quot;m5.xlarge&quot;, region: &quot;cn-north-1b&quot;, status: &quot;running&quot;, cpu: 42, mem: 38, cost: 218000, tag: &quot;team:backend&quot;, trend: [38,40,41,43,42,44,41,42], uptime: &quot;31d&quot;, recommendation: &quot;Utilization normal. RI coverage: 0%. Purchasing a 1yr RI could save ¥54K/mo.&quot; },
+    { id: &quot;i-0a1b2c3d4e5f003&quot;, name: &quot;data-pipeline-1&quot;, type: &quot;c5.2xlarge&quot;, region: &quot;cn-north-1a&quot;, status: &quot;running&quot;, cpu: 91, mem: 82, cost: 316000, tag: &quot;team:data&quot;, trend: [60,65,72,80,85,88,90,91], uptime: &quot;12d&quot;, recommendation: &quot;CRITICAL: CPU sustained >90% for 3h. Immediate scaling recommended. Consider c5.4xlarge or ASG.&quot; },
+    { id: &quot;i-0a1b2c3d4e5f004&quot;, name: &quot;staging-db-03&quot;, type: &quot;r5.large&quot;, region: &quot;cn-north-1c&quot;, status: &quot;pending&quot;, cpu: 12, mem: 28, cost: 78000, tag: &quot;team:infra&quot;, trend: [8,10,12,11,14,12,11,12], uptime: &quot;8d&quot;, recommendation: &quot;Low utilization. Could be stopped outside business hours to save ~¥52K/mo.&quot; },
+    { id: &quot;i-0a1b2c3d4e5f005&quot;, name: &quot;dev-backend-07&quot;, type: &quot;t2.micro&quot;, region: &quot;cn-north-1a&quot;, status: &quot;stopped&quot;, cpu: 0, mem: 0, cost: 8000, tag: &quot;team:backend&quot;, trend: [0,0,0,0,0,0,0,0], uptime: &quot;Stopped 3d ago&quot;, recommendation: &quot;Instance stopped. Detach and snapshot EBS if no longer needed to avoid storage cost.&quot; },
+    { id: &quot;i-0a1b2c3d4e5f006&quot;, name: &quot;ml-trainer-gpu-01&quot;, type: &quot;p3.2xlarge&quot;, region: &quot;cn-north-1a&quot;, status: &quot;running&quot;, cpu: 94, mem: 71, cost: 892000, tag: &quot;team:ml&quot;, trend: [70,75,80,88,90,93,94,94], uptime: &quot;4d&quot;, recommendation: &quot;GPU utilization: 96%. Consider Spot for batch training jobs — savings up to 70%.&quot; },
+    { id: &quot;i-0a1b2c3d4e5f007&quot;, name: &quot;prod-cache-01&quot;, type: &quot;r6g.xlarge&quot;, region: &quot;cn-north-1b&quot;, status: &quot;running&quot;, cpu: 18, mem: 74, cost: 96000, tag: &quot;team:platform&quot;, trend: [15,16,18,17,19,18,17,18], uptime: &quot;89d&quot;, recommendation: &quot;Memory-optimized, normal usage. RI 1yr would reduce cost by ¥24K/mo.&quot; },
+  ],
+
+  alerts: [
+    { id: &quot;ALT-001&quot;, severity: &quot;critical&quot;, title: &quot;NAT Gateway data transfer spike&quot;, resource: &quot;vpc-0a3f…d21&quot;, region: &quot;cn-north-1&quot;, time: &quot;3h ago&quot;, cost: 182000, cause: &quot;Unusual outbound traffic pattern detected. 4.2× expected hourly rate. Possible misconfigured application or data exfiltration.&quot;, action: &quot;1. Check VPC Flow Logs for source IPs. 2. Review EC2 instances in subnet. 3. Consider VPC endpoint for S3/DynamoDB to eliminate NAT charges.&quot;, status: &quot;open&quot; },
+    { id: &quot;ALT-002&quot;, severity: &quot;critical&quot;, title: &quot;EC2 On-Demand untagged instances detected&quot;, resource: &quot;14 instances&quot;, region: &quot;cn-north-1a&quot;, time: &quot;6d ago&quot;, cost: 94000, cause: &quot;14 EC2 instances launched via IAM role ci-runner have no team/project tags. Policy violation — cannot attribute cost to team budget.&quot;, action: &quot;1. Tag instances immediately with team: and project: keys. 2. Apply SCP to enforce tagging on launch. 3. Review IAM policy for ci-runner role.&quot;, status: &quot;open&quot; },
+    { id: &quot;ALT-003&quot;, severity: &quot;warning&quot;, title: &quot;S3 GET request volume above baseline&quot;, resource: &quot;ml-training-data&quot;, region: &quot;cn-north-1&quot;, time: &quot;1d ago&quot;, cost: 38000, cause: &quot;S3 GET requests 2.1× 7-day average. Likely caused by recent ML training pipeline expansion. Not anomalous if intentional.&quot;, action: &quot;1. Confirm with team:ml if increased training runs are expected. 2. Consider S3 Transfer Acceleration or caching layer. 3. Review lifecycle policies.&quot;, status: &quot;investigating&quot; },
+    { id: &quot;ALT-004&quot;, severity: &quot;warning&quot;, title: &quot;Forecasted spend exceeds monthly budget&quot;, resource: &quot;All services&quot;, region: &quot;All&quot;, time: &quot;2h ago&quot;, cost: 490000, cause: &quot;Current MTD spend trajectory projects ¥6.49M by month-end, exceeding ¥6.0M budget by 8.2%. Primary driver: EC2 On-Demand (+22% MoM).&quot;, action: &quot;1. Review and terminate unused EC2 instances. 2. Accelerate RI purchase for stable workloads. 3. Consider Spot for batch/ML jobs.&quot;, status: &quot;open&quot; },
+    { id: &quot;ALT-005&quot;, severity: &quot;info&quot;, title: &quot;RI expiring in 14 days&quot;, resource: &quot;3 × m5.xlarge reservations&quot;, region: &quot;cn-north-1&quot;, time: &quot;Now&quot;, cost: 0, cause: &quot;Reserved Instance contract for 3× m5.xlarge (team:backend) expires Mar 21. Without renewal, instances will revert to On-Demand pricing.&quot;, action: &quot;1. Review instance utilization before renewal. 2. Consider converting to Savings Plans for more flexibility. 3. Submit renewal request via AWS console.&quot;, status: &quot;open&quot; },
+    { id: &quot;ALT-006&quot;, severity: &quot;info&quot;, title: &quot;data-pipeline-1 CPU sustained >90%&quot;, resource: &quot;i-0a1b2c3d4e5f003&quot;, region: &quot;cn-north-1a&quot;, time: &quot;3h ago&quot;, cost: 0, cause: &quot;CPU utilization has been above 90% for 3 consecutive hours. Application performance may be degraded.&quot;, action: &quot;1. Check CloudWatch metrics for memory and disk I/O. 2. Consider vertical scaling to c5.4xlarge. 3. Review application for optimization opportunities.&quot;, status: &quot;acknowledged&quot; },
+  ],
+
+  kpis: [
+    { id: &quot;kpi-1&quot;, name: &quot;EC2 Prev-Gen Usage&quot;, goal: &quot;≤ 10%&quot;, goalVal: 10, actual: 43, dir: &quot;max&quot;, status: &quot;critical&quot;, savings: 184000, affected: 28, affectedList: [&quot;m3.xlarge × 12 (prod)&quot;, &quot;c3.2xlarge × 8 (batch)&quot;, &quot;m3.large × 8 (staging)&quot;], suggestion: &quot;Migrate to m6i/c6i equivalents. Performance-per-dollar improves 20–40%. 24 of 28 instances can be migrated with zero downtime.&quot; },
+    { id: &quot;kpi-2&quot;, name: &quot;EC2 Spot Adoption&quot;, goal: &quot;≥ 10%&quot;, goalVal: 10, actual: 1, dir: &quot;min&quot;, status: &quot;critical&quot;, savings: 280000, affected: 0, affectedList: [&quot;data-pipeline-1 (batch-eligible)&quot;, &quot;ml-trainer-gpu-01 (batch-eligible)&quot;, &quot;staging environments (8 instances)&quot;], suggestion: &quot;Batch and ML workloads are ideal Spot candidates. Using Spot Fleet with On-Demand fallback can reduce compute cost 60–70% for these workloads.&quot; },
+    { id: &quot;kpi-3&quot;, name: &quot;EBS gp3 Coverage&quot;, goal: &quot;≥ 50%&quot;, goalVal: 50, actual: 63, dir: &quot;min&quot;, status: &quot;on-track&quot;, savings: 0, affected: 0, affectedList: [], suggestion: &quot;Currently on track. Continue migrating remaining gp2 volumes. gp3 is 20% cheaper and offers configurable performance.&quot; },
+    { id: &quot;kpi-4&quot;, name: &quot;S3 Intelligent-Tiering&quot;, goal: &quot;≥ 40%&quot;, goalVal: 40, actual: 28, dir: &quot;min&quot;, status: &quot;warning&quot;, savings: 62000, affected: 4, affectedList: [&quot;ml-training-data (1.2TB standard)&quot;, &quot;log-archive (4.8TB standard)&quot;, &quot;backup-store (2.1TB standard)&quot;, &quot;analytics-export (780GB standard)&quot;], suggestion: &quot;Enable S3 Intelligent-Tiering on buckets with unpredictable access patterns. Estimated savings: ¥62K/mo based on current access logs.&quot; },
+    { id: &quot;kpi-5&quot;, name: &quot;RI Coverage (EC2)&quot;, goal: &quot;≥ 70%&quot;, goalVal: 70, actual: 52, dir: &quot;min&quot;, status: &quot;warning&quot;, savings: 156000, affected: 0, affectedList: [&quot;prod-api-02 (On-Demand, stable 90d)&quot;, &quot;prod-web-01 (On-Demand, stable 60d)&quot;, &quot;prod-cache-01 (On-Demand, stable 89d)&quot;], suggestion: &quot;3 stable production instances have zero RI coverage. Purchasing 1yr Standard RIs would save ~¥156K/mo with low risk.&quot; },
+    { id: &quot;kpi-6&quot;, name: &quot;Untagged Resources&quot;, goal: &quot;0%&quot;, goalVal: 0, actual: 8, dir: &quot;max&quot;, status: &quot;warning&quot;, savings: 0, affected: 14, affectedList: [&quot;14 EC2 instances via ci-runner&quot;, &quot;3 EBS volumes (orphaned)&quot;, &quot;2 Elastic IPs (unattached)&quot;], suggestion: &quot;Enforce tagging via AWS Config rules and SCP. Untagged resources cannot be cost-attributed and indicate governance gaps.&quot; },
+    { id: &quot;kpi-7&quot;, name: &quot;Savings Plan Coverage&quot;, goal: &quot;≥ 60%&quot;, goalVal: 60, actual: 71, dir: &quot;min&quot;, status: &quot;on-track&quot;, savings: 0, affected: 0, affectedList: [], suggestion: &quot;On track. Review Compute Savings Plan vs EC2 Instance Savings Plan for optimal coverage as workload mix evolves.&quot; },
+  ],
+
+  regions: [&quot;All regions&quot;, &quot;cn-north-1&quot;, &quot;cn-northwest-1&quot;, &quot;us-east-1&quot;],
+  timeRanges: [&quot;Mar 2026&quot;, &quot;Feb 2026&quot;, &quot;Last 30 days&quot;, &quot;Last 90 days&quot;],
+};
+
+// ─────────────────────────────────────────────
+// UTILITY / UI PRIMITIVES
+// ─────────────────────────────────────────────
+const fmt = (n) => n >= 1000000 ? `¥${(n/1000000).toFixed(2)}M` : n >= 1000 ? `¥${(n/1000).toFixed(0)}K` : `¥${n}`;
+const fmtPct = (n) => `${n > 0 ? &quot;+&quot; : &quot;&quot;}${n}%`;
+
+const Badge = ({ children, variant = &quot;default&quot; }) => {
+  const styles = {
+    critical: &quot;bg-red-950 text-red-400 border border-red-900&quot;,
+    warning: &quot;bg-amber-950 text-amber-400 border border-amber-900&quot;,
+    info: &quot;bg-blue-950 text-blue-400 border border-blue-900&quot;,
+    success: &quot;bg-emerald-950 text-emerald-400 border border-emerald-900&quot;,
+    &quot;on-track&quot;: &quot;bg-emerald-950 text-emerald-400 border border-emerald-900&quot;,
+    default: &quot;bg-gray-800 text-gray-400 border border-gray-700&quot;,
+    acknowledged: &quot;bg-gray-800 text-gray-400 border border-gray-700&quot;,
+    investigating: &quot;bg-blue-950 text-blue-400 border border-blue-900&quot;,
+    open: &quot;bg-red-950 text-red-400 border border-red-900&quot;,
+  };
+  return (
+    <span className={`inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-mono font-semibold uppercase tracking-wide ${styles[variant] || styles.default}`}>
+      {children}
+    </span>
+  );
+};
+
+const StatusDot = ({ status }) => {
+  const colors = { running: &quot;bg-emerald-500&quot;, stopped: &quot;bg-gray-600&quot;, pending: &quot;bg-amber-400&quot; };
+  return <span className={`inline-block w-2 h-2 rounded-full ${colors[status] || &quot;bg-gray-600&quot;} flex-shrink-0`} />;
+};
+
+const MomBadge = ({ val }) => (
+  <span className={`font-mono text-[11px] font-semibold ${val > 10 ? &quot;text-red-400&quot; : val > 0 ? &quot;text-amber-400&quot; : &quot;text-emerald-400&quot;}`}>
+    {fmtPct(val)}
+  </span>
+);
+
+const Card = ({ children, className = &quot;&quot;, onClick }) => (
+  <div
+    className={`bg-gray-900 border border-gray-800 rounded-lg ${onClick ? &quot;cursor-pointer hover:border-gray-600 transition-colors&quot; : &quot;&quot;} ${className}`}
+    onClick={onClick}
+  >
+    {children}
+  </div>
+);
+
+const CardHeader = ({ title, right, sub }) => (
+  <div className=&quot;flex items-center justify-between px-4 py-3 border-b border-gray-800&quot;>
+    <div>
+      <div className=&quot;text-[13px] font-semibold text-gray-200&quot;>{title}</div>
+      {sub &amp;&amp; <div className=&quot;text-[11px] text-gray-500 mt-0.5&quot;>{sub}</div>}
+    </div>
+    {right &amp;&amp; <div className=&quot;flex items-center gap-2&quot;>{right}</div>}
+  </div>
+);
+
+// Minimal sparkline SVG
+const Sparkline = ({ data, color = &quot;#3B82F6&quot;, height = 32 }) => {
+  if (!data || data.length < 2) return null;
+  const max = Math.max(...data, 1);
+  const min = Math.min(...data);
+  const w = 80, h = height;
+  const pts = data.map((v, i) => {
+    const x = (i / (data.length - 1)) * w;
+    const y = h - ((v - min) / (max - min || 1)) * (h - 4) - 2;
+    return `${x},${y}`;
+  }).join(&quot; &quot;);
+  return (
+    <svg width={w} height={h} viewBox={`0 0 ${w} ${h}`} className=&quot;overflow-visible&quot;>
+      <polyline points={pts} fill=&quot;none&quot; stroke={color} strokeWidth=&quot;1.5&quot; strokeLinecap=&quot;round&quot; strokeLinejoin=&quot;round&quot; />
+    </svg>
+  );
+};
+
+// Simple bar chart for cost by service
+const CostBar = ({ value, max, color }) => (
+  <div className=&quot;h-1.5 bg-gray-800 rounded-full overflow-hidden&quot;>
+    <div className=&quot;h-full rounded-full transition-all&quot; style={{ width: `${(value / max) * 100}%`, background: color }} />
+  </div>
+);
+
+// Trend chart (Dashboard)
+const TrendChart = ({ data }) => {
+  const actualPts = data.filter(d => d.actual);
+  const forecastPts = data.filter(d => d.forecast);
+  const all = [...actualPts.map(d => d.actual), ...forecastPts.map(d => d.forecast)];
+  const max = Math.max(...all) * 1.1;
+  const W = 640, H = 80;
+  const x = (i, total) => (i / (total - 1)) * W;
+  const y = (v) => H - (v / max) * H + 4;
+  const budgetY = y(194000);
+
+  const actualPath = actualPts.map((d, i) => `${i === 0 ? &quot;M&quot; : &quot;L&quot;}${x(i, data.length)},${y(d.actual)}`).join(&quot; &quot;);
+  const forecastPath = forecastPts.map((d, i) => `${i === 0 ? `M${x(actualPts.length - 1, data.length)},${y(actualPts[actualPts.length - 1].actual)} L` : &quot;L&quot;}${x(actualPts.length + i, data.length)},${y(d.forecast)}`).join(&quot; &quot;);
+
+  const areaPath = actualPts.map((d, i) => `${i === 0 ? &quot;M&quot; : &quot;L&quot;}${x(i, data.length)},${y(d.actual)}`).join(&quot; &quot;) + ` L${x(actualPts.length - 1, data.length)},${H} L0,${H} Z`;
+
+  return (
+    <svg width=&quot;100%&quot; viewBox={`0 0 ${W} ${H + 8}`} className=&quot;overflow-visible&quot;>
+      <defs>
+        <linearGradient id=&quot;tg&quot; x1=&quot;0&quot; y1=&quot;0&quot; x2=&quot;0&quot; y2=&quot;1&quot;>
+          <stop offset=&quot;0%&quot; stopColor=&quot;#3B82F6&quot; stopOpacity=&quot;0.15&quot; />
+          <stop offset=&quot;100%&quot; stopColor=&quot;#3B82F6&quot; stopOpacity=&quot;0&quot; />
+        </linearGradient>
+      </defs>
+      {[0.25, 0.5, 0.75, 1].map(t => (
+        <line key={t} x1=&quot;0&quot; y1={y(max * t)} x2={W} y2={y(max * t)} stroke=&quot;#1F2937&quot; strokeWidth=&quot;1&quot; />
+      ))}
+      <line x1=&quot;0&quot; y1={budgetY} x2={W} y2={budgetY} stroke=&quot;#F59E0B&quot; strokeWidth=&quot;1&quot; strokeDasharray=&quot;4,4&quot; opacity=&quot;0.5&quot; />
+      <path d={areaPath} fill=&quot;url(#tg)&quot; />
+      <path d={actualPath} fill=&quot;none&quot; stroke=&quot;#3B82F6&quot; strokeWidth=&quot;1.8&quot; strokeLinecap=&quot;round&quot; strokeLinejoin=&quot;round&quot; />
+      <path d={forecastPath} fill=&quot;none&quot; stroke=&quot;#3B82F6&quot; strokeWidth=&quot;1.5&quot; strokeLinecap=&quot;round&quot; strokeLinejoin=&quot;round&quot; strokeDasharray=&quot;5,3&quot; opacity=&quot;0.55&quot; />
+      <circle cx={x(actualPts.length - 1, data.length)} cy={y(actualPts[actualPts.length - 1].actual)} r=&quot;3.5&quot; fill=&quot;#3B82F6&quot; />
+      <text x={x(actualPts.length - 1, data.length) + 5} y={y(actualPts[actualPts.length - 1].actual) - 6} fontSize=&quot;8&quot; fill=&quot;#6B7280&quot; fontFamily=&quot;monospace&quot;>Today</text>
+      <text x={W - 2} y={budgetY - 4} fontSize=&quot;8&quot; fill=&quot;#F59E0B&quot; fontFamily=&quot;monospace&quot; textAnchor=&quot;end&quot; opacity=&quot;0.7&quot;>Budget/day</text>
+    </svg>
+  );
+};
+
+// Progress bar for KPI
+const KpiBar = ({ actual, goal, dir, status }) => {
+  const pct = dir === &quot;max&quot; ? Math.min((actual / goal) * 100, 100) : Math.min((actual / (goal * 1.5)) * 100, 100);
+  const color = status === &quot;critical&quot; ? &quot;#EF4444&quot; : status === &quot;warning&quot; ? &quot;#F59E0B&quot; : &quot;#22C55E&quot;;
+  return (
+    <div className=&quot;h-1.5 bg-gray-800 rounded-full overflow-hidden mt-1.5&quot;>
+      <div className=&quot;h-full rounded-full&quot; style={{ width: `${pct}%`, background: color }} />
+    </div>
+  );
+};
+
+// ─────────────────────────────────────────────
+// MODAL
+// ─────────────────────────────────────────────
+const Modal = ({ open, onClose, children }) => {
+  if (!open) return null;
+  return (
+    <div className=&quot;fixed inset-0 z-50 flex items-center justify-center&quot; onClick={onClose}>
+      <div className=&quot;absolute inset-0 bg-black/60 backdrop-blur-sm&quot; />
+      <div className=&quot;relative z-10 w-full max-w-lg&quot; onClick={e => e.stopPropagation()}>
+        {children}
+      </div>
+    </div>
+  );
+};
+
+// ─────────────────────────────────────────────
+// DETAIL DRAWER
+// ─────────────────────────────────────────────
+const Drawer = ({ open, onClose, children }) => (
+  <div className={`fixed inset-y-0 right-0 z-40 w-[440px] bg-gray-950 border-l border-gray-800 shadow-2xl transform transition-transform duration-300 flex flex-col ${open ? &quot;translate-x-0&quot; : &quot;translate-x-full&quot;}`}>
+    <div className=&quot;flex items-center justify-between px-5 py-4 border-b border-gray-800 flex-shrink-0&quot;>
+      <span className=&quot;text-[11px] font-mono text-gray-500 uppercase tracking-widest&quot;>Detail</span>
+      <button onClick={onClose} className=&quot;text-gray-500 hover:text-gray-200 transition-colors text-xl leading-none&quot;>×</button>
+    </div>
+    <div className=&quot;flex-1 overflow-y-auto&quot;>{children}</div>
+  </div>
+);
+
+// ─────────────────────────────────────────────
+// PAGES
+// ─────────────────────────────────────────────
+
+// ── DASHBOARD ──
+const Dashboard = ({ onAlertClick, setPage }) => {
+  const maxCost = Math.max(...MOCK.costByService.map(s => s.mtd));
+  const budgetPct = (MOCK.budget.mtd / MOCK.budget.monthly * 100).toFixed(1);
+  const criticalAlerts = MOCK.alerts.filter(a => a.severity === &quot;critical&quot;).length;
+
+  return (
+    <div className=&quot;p-5 space-y-4&quot;>
+      {/* Primary KPI row */}
+      <div className=&quot;grid grid-cols-3 gap-3&quot;>
+        {/* MTD */}
+        <Card className=&quot;border-l-2 border-l-amber-500&quot;>
+          <div className=&quot;p-4&quot;>
+            <div className=&quot;text-[10px] font-semibold text-gray-500 uppercase tracking-wider mb-2&quot;>Month-to-Date Cost</div>
+            <div className=&quot;font-mono text-2xl font-semibold text-gray-100 tracking-tight mb-1&quot;>{fmt(MOCK.budget.mtd)}</div>
+            <div className=&quot;flex items-center justify-between mb-2&quot;>
+              <span className=&quot;text-[11px] text-gray-500&quot;>of {fmt(MOCK.budget.monthly)} budget</span>
+              <span className=&quot;font-mono text-[12px] font-semibold text-amber-400&quot;>{budgetPct}%</span>
+            </div>
+            <div className=&quot;h-1.5 bg-gray-800 rounded-full overflow-hidden&quot;>
+              <div className=&quot;h-full bg-amber-500 rounded-full&quot; style={{ width: `${budgetPct}%` }} />
+            </div>
+          </div>
+        </Card>
+        {/* Forecast */}
+        <Card className=&quot;border-l-2 border-l-red-500&quot;>
+          <div className=&quot;p-4&quot;>
+            <div className=&quot;text-[10px] font-semibold text-gray-500 uppercase tracking-wider mb-2&quot;>Forecasted Month-End</div>
+            <div className=&quot;font-mono text-2xl font-semibold text-gray-100 tracking-tight mb-1&quot;>{fmt(MOCK.budget.forecast)}</div>
+            <div className=&quot;flex items-center gap-2 mb-2&quot;>
+              <span className=&quot;font-mono text-[11px] font-semibold text-red-400&quot;>+{fmt(MOCK.budget.forecast - MOCK.budget.monthly)} over budget</span>
+            </div>
+            <div className=&quot;flex items-center gap-1 text-[11px] text-red-400&quot;>
+              <svg width=&quot;10&quot; height=&quot;10&quot; viewBox=&quot;0 0 24 24&quot; fill=&quot;none&quot; stroke=&quot;currentColor&quot; strokeWidth=&quot;2&quot;><path d=&quot;M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z&quot;/></svg>
+              Projected to exceed budget
+            </div>
+          </div>
+        </Card>
+        {/* MoM */}
+        <Card className=&quot;border-l-2 border-l-blue-500&quot;>
+          <div className=&quot;p-4&quot;>
+            <div className=&quot;text-[10px] font-semibold text-gray-500 uppercase tracking-wider mb-2&quot;>Month-over-Month Change</div>
+            <div className=&quot;font-mono text-2xl font-semibold text-gray-100 tracking-tight mb-1&quot;>+{MOCK.momChange.pct}%</div>
+            <div className=&quot;text-[11px] text-gray-500 mb-1&quot;>vs Feb 2026 · +{fmt(MOCK.momChange.abs)}</div>
+            <div className=&quot;text-[11px] text-gray-600&quot;>Top driver: {MOCK.momChange.driver}</div>
+          </div>
+        </Card>
+      </div>
+
+      {/* Trend chart */}
+      <Card>
+        <CardHeader
+          title=&quot;Daily Spend — March 2026&quot;
+          sub=&quot;Solid = actual · Dashed = forecast · Orange dashed = budget/day&quot;
+        />
+        <div className=&quot;px-4 py-3&quot;>
+          <TrendChart data={MOCK.monthlyTrend} />
+        </div>
+      </Card>
+
+      {/* Middle row: cost by service + alerts */}
+      <div className=&quot;grid grid-cols-2 gap-3&quot;>
+        <Card>
+          <CardHeader title=&quot;Top Cost Drivers&quot; right={<button className=&quot;text-[11px] text-blue-400 hover:text-blue-300&quot; onClick={() => setPage(&quot;billing&quot;)}>View all →</button>} />
+          <div className=&quot;p-4 space-y-3&quot;>
+            {MOCK.costByService.map(s => (
+              <div key={s.id}>
+                <div className=&quot;flex items-center justify-between mb-1&quot;>
+                  <div className=&quot;flex items-center gap-2&quot;>
+                    <span className=&quot;w-2 h-2 rounded-sm flex-shrink-0&quot; style={{ background: s.color }} />
+                    <span className=&quot;text-[12px] text-gray-300&quot;>{s.name}</span>
+                  </div>
+                  <div className=&quot;flex items-center gap-3&quot;>
+                    <span className=&quot;font-mono text-[12px] text-gray-200&quot;>{fmt(s.mtd)}</span>
+                    <MomBadge val={s.mom} />
+                  </div>
+                </div>
+                <CostBar value={s.mtd} max={maxCost} color={s.color} />
+              </div>
+            ))}
+          </div>
+        </Card>
+
+        <div className=&quot;space-y-3&quot;>
+          {/* Active alerts */}
+          <Card>
+            <CardHeader
+              title=&quot;Active Alerts&quot;
+              right={
+                <>
+                  <Badge variant=&quot;critical&quot;>{criticalAlerts} critical</Badge>
+                  <button className=&quot;text-[11px] text-blue-400 hover:text-blue-300&quot; onClick={() => setPage(&quot;alerts&quot;)}>View all →</button>
+                </>
+              }
+            />
+            <div>
+              {MOCK.alerts.filter(a => a.status === &quot;open&quot;).slice(0, 4).map(a => (
+                <div key={a.id} className=&quot;flex items-start gap-3 px-4 py-3 border-b border-gray-800 last:border-0 cursor-pointer hover:bg-gray-800/50 transition-colors&quot; onClick={() => onAlertClick(a)}>
+                  <div className={`w-0.5 self-stretch rounded flex-shrink-0 ${a.severity === &quot;critical&quot; ? &quot;bg-red-500&quot; : a.severity === &quot;warning&quot; ? &quot;bg-amber-500&quot; : &quot;bg-blue-500&quot;}`} />
+                  <div className=&quot;flex-1 min-w-0&quot;>
+                    <div className=&quot;text-[12px] font-medium text-gray-200 truncate&quot;>{a.title}</div>
+                    <div className=&quot;text-[11px] text-gray-500 mt-0.5&quot;>{a.resource} · {a.time}</div>
+                  </div>
+                  {a.cost > 0 &amp;&amp; <span className=&quot;font-mono text-[11px] text-red-400 flex-shrink-0&quot;>{fmt(a.cost)}</span>}
+                </div>
+              ))}
+            </div>
+          </Card>
+
+          {/* KPI summary */}
+          <Card>
+            <CardHeader
+              title=&quot;KPI Health&quot;
+              right={<button className=&quot;text-[11px] text-blue-400 hover:text-blue-300&quot; onClick={() => setPage(&quot;kpi&quot;)}>Full report →</button>}
+            />
+            <div className=&quot;p-3 space-y-2&quot;>
+              {MOCK.kpis.filter(k => k.status !== &quot;on-track&quot;).slice(0, 4).map(k => (
+                <div key={k.id} className=&quot;flex items-center justify-between&quot;>
+                  <div className=&quot;flex items-center gap-2 min-w-0&quot;>
+                    <Badge variant={k.status}>{k.status === &quot;critical&quot; ? &quot;AT RISK&quot; : &quot;WARN&quot;}</Badge>
+                    <span className=&quot;text-[11px] text-gray-400 truncate&quot;>{k.name}</span>
+                  </div>
+                  <span className={`font-mono text-[12px] font-semibold ${k.status === &quot;critical&quot; ? &quot;text-red-400&quot; : &quot;text-amber-400&quot;}`}>{k.actual}%</span>
+                </div>
+              ))}
+            </div>
+          </Card>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// ── EC2 INSTANCES ──
+const EC2Page = () => {
+  const [selected, setSelected] = useState(null);
+  const [filter, setFilter] = useState(&quot;all&quot;);
+
+  const filtered = MOCK.instances.filter(i => filter === &quot;all&quot; || i.status === filter);
+
+  return (
+    <div className=&quot;flex h-full&quot;>
+      {/* List */}
+      <div className=&quot;flex-1 overflow-y-auto&quot;>
+        <div className=&quot;p-5&quot;>
+          {/* Filter bar */}
+          <div className=&quot;flex items-center gap-3 mb-4&quot;>
+            <span className=&quot;text-[11px] text-gray-500&quot;>Status:</span>
+            {[&quot;all&quot;, &quot;running&quot;, &quot;stopped&quot;, &quot;pending&quot;].map(s => (
+              <button key={s} onClick={() => setFilter(s)}
+                className={`px-3 py-1 rounded text-[11px] font-medium capitalize transition-colors ${filter === s ? &quot;bg-blue-600 text-white&quot; : &quot;bg-gray-800 text-gray-400 hover:bg-gray-700&quot;}`}>
+                {s}
+              </button>
+            ))}
+            <span className=&quot;text-[11px] text-gray-600 ml-auto&quot;>{filtered.length} instances</span>
+          </div>
+
+          {/* Table */}
+          <Card>
+            <div className=&quot;overflow-x-auto&quot;>
+              <table className=&quot;w-full text-[12px]&quot;>
+                <thead>
+                  <tr className=&quot;border-b border-gray-800&quot;>
+                    {[&quot;Instance&quot;, &quot;Type&quot;, &quot;Region&quot;, &quot;Status&quot;, &quot;CPU&quot;, &quot;Cost / MTD&quot;, &quot;Tag&quot;, &quot;24h Trend&quot;, &quot;&quot;].map(h => (
+                      <th key={h} className=&quot;px-4 py-3 text-left text-[10px] font-semibold text-gray-500 uppercase tracking-wider whitespace-nowrap&quot;>{h}</th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {filtered.map(inst => (
+                    <tr key={inst.id}
+                      className={`border-b border-gray-800/50 hover:bg-gray-800/40 cursor-pointer transition-colors ${selected?.id === inst.id ? &quot;bg-blue-950/30 border-l-2 border-l-blue-500&quot; : &quot;&quot;}`}
+                      onClick={() => setSelected(inst)}>
+                      <td className=&quot;px-4 py-3&quot;>
+                        <div className=&quot;font-medium text-gray-200&quot;>{inst.name}</div>
+                        <div className=&quot;font-mono text-[10px] text-gray-600&quot;>{inst.id.slice(0, 18)}…</div>
+                      </td>
+                      <td className=&quot;px-4 py-3 font-mono text-gray-400&quot;>{inst.type}</td>
+                      <td className=&quot;px-4 py-3 text-gray-400&quot;>{inst.region}</td>
+                      <td className=&quot;px-4 py-3&quot;>
+                        <div className=&quot;flex items-center gap-1.5&quot;>
+                          <StatusDot status={inst.status} />
+                          <span className=&quot;capitalize text-gray-400&quot;>{inst.status}</span>
+                        </div>
+                      </td>
+                      <td className=&quot;px-4 py-3&quot;>
+                        <span className={`font-mono font-semibold ${inst.cpu > 80 ? &quot;text-red-400&quot; : inst.cpu > 60 ? &quot;text-amber-400&quot; : &quot;text-gray-300&quot;}`}>
+                          {inst.cpu > 0 ? `${inst.cpu}%` : &quot;—&quot;}
+                        </span>
+                      </td>
+                      <td className=&quot;px-4 py-3 font-mono text-gray-300&quot;>{fmt(inst.cost)}</td>
+                      <td className=&quot;px-4 py-3 font-mono text-[11px] text-gray-500&quot;>{inst.tag}</td>
+                      <td className=&quot;px-4 py-3&quot;>
+                        <Sparkline data={inst.trend} color={inst.cpu > 80 ? &quot;#EF4444&quot; : &quot;#3B82F6&quot;} height={24} />
+                      </td>
+                      <td className=&quot;px-4 py-3 text-blue-400 text-[11px]&quot;>View →</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </Card>
+        </div>
+      </div>
+
+      {/* Detail drawer */}
+      <Drawer open={!!selected} onClose={() => setSelected(null)}>
+        {selected &amp;&amp; (
+          <div className=&quot;p-5 space-y-5&quot;>
+            {/* Header */}
+            <div>
+              <div className=&quot;flex items-center gap-2 mb-1&quot;>
+                <StatusDot status={selected.status} />
+                <h2 className=&quot;text-[16px] font-semibold text-gray-100&quot;>{selected.name}</h2>
+              </div>
+              <div className=&quot;font-mono text-[11px] text-gray-500&quot;>{selected.id}</div>
+            </div>
+
+            {/* Stats grid */}
+            <div className=&quot;grid grid-cols-2 gap-2&quot;>
+              {[
+                { label: &quot;Instance Type&quot;, val: selected.type },
+                { label: &quot;Region / AZ&quot;, val: selected.region },
+                { label: &quot;Uptime&quot;, val: selected.uptime },
+                { label: &quot;Tag&quot;, val: selected.tag },
+                { label: &quot;MTD Cost&quot;, val: fmt(selected.cost) },
+                { label: &quot;Status&quot;, val: selected.status },
+              ].map(({ label, val }) => (
+                <div key={label} className=&quot;bg-gray-800/50 rounded p-3&quot;>
+                  <div className=&quot;text-[10px] text-gray-500 uppercase tracking-wide mb-1&quot;>{label}</div>
+                  <div className=&quot;font-mono text-[12px] text-gray-200 capitalize&quot;>{val}</div>
+                </div>
+              ))}
+            </div>
+
+            {/* CPU utilization */}
+            <div>
+              <div className=&quot;flex items-center justify-between mb-2&quot;>
+                <span className=&quot;text-[11px] text-gray-500 uppercase tracking-wide&quot;>CPU Utilization</span>
+                <span className={`font-mono text-[14px] font-semibold ${selected.cpu > 80 ? &quot;text-red-400&quot; : selected.cpu > 60 ? &quot;text-amber-400&quot; : &quot;text-emerald-400&quot;}`}>
+                  {selected.cpu > 0 ? `${selected.cpu}%` : &quot;—&quot;}
+                </span>
+              </div>
+              {selected.cpu > 0 &amp;&amp; (
+                <div className=&quot;h-2 bg-gray-800 rounded-full overflow-hidden&quot;>
+                  <div className=&quot;h-full rounded-full&quot; style={{ width: `${selected.cpu}%`, background: selected.cpu > 80 ? &quot;#EF4444&quot; : selected.cpu > 60 ? &quot;#F59E0B&quot; : &quot;#22C55E&quot; }} />
+                </div>
+              )}
+              <div className=&quot;mt-3&quot;>
+                <div className=&quot;text-[11px] text-gray-500 mb-2&quot;>24h Trend</div>
+                <Sparkline data={selected.trend} color={selected.cpu > 80 ? &quot;#EF4444&quot; : &quot;#3B82F6&quot;} height={40} />
+              </div>
+            </div>
+
+            {/* Recommendation */}
+            <div className=&quot;bg-blue-950/40 border border-blue-900/50 rounded-lg p-4&quot;>
+              <div className=&quot;text-[10px] font-semibold text-blue-400 uppercase tracking-wider mb-2&quot;>Optimization Recommendation</div>
+              <div className=&quot;text-[12px] text-gray-300 leading-relaxed&quot;>{selected.recommendation}</div>
+              <button className=&quot;mt-3 text-[11px] bg-gray-800 border border-gray-700 rounded px-3 py-1.5 text-gray-300 hover:border-gray-500 hover:text-white transition-colors&quot;>
+                Create optimization ticket →
+              </button>
+            </div>
+
+            {/* Memory */}
+            {selected.mem > 0 &amp;&amp; (
+              <div>
+                <div className=&quot;flex items-center justify-between mb-2&quot;>
+                  <span className=&quot;text-[11px] text-gray-500 uppercase tracking-wide&quot;>Memory</span>
+                  <span className=&quot;font-mono text-[13px] text-gray-300&quot;>{selected.mem}%</span>
+                </div>
+                <div className=&quot;h-1.5 bg-gray-800 rounded-full overflow-hidden&quot;>
+                  <div className=&quot;h-full rounded-full bg-purple-500&quot; style={{ width: `${selected.mem}%` }} />
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+      </Drawer>
+    </div>
+  );
+};
+
+// ── ALERTS ──
+const AlertsPage = () => {
+  const [selected, setSelected] = useState(null);
+  const [filter, setFilter] = useState(&quot;all&quot;);
+
+  const filtered = MOCK.alerts.filter(a => filter === &quot;all&quot; || a.severity === filter);
+
+  return (
+    <div className=&quot;flex h-full&quot;>
+      <div className=&quot;flex-1 overflow-y-auto p-5&quot;>
+        <div className=&quot;flex items-center gap-3 mb-4&quot;>
+          <span className=&quot;text-[11px] text-gray-500&quot;>Severity:</span>
+          {[&quot;all&quot;, &quot;critical&quot;, &quot;warning&quot;, &quot;info&quot;].map(s => (
+            <button key={s} onClick={() => setFilter(s)}
+              className={`px-3 py-1 rounded text-[11px] font-medium capitalize transition-colors ${filter === s ? &quot;bg-blue-600 text-white&quot; : &quot;bg-gray-800 text-gray-400 hover:bg-gray-700&quot;}`}>
+              {s}
+            </button>
+          ))}
+          <div className=&quot;ml-auto flex gap-2&quot;>
+            <Badge variant=&quot;critical&quot;>{MOCK.alerts.filter(a => a.severity === &quot;critical&quot;).length} critical</Badge>
+            <Badge variant=&quot;warning&quot;>{MOCK.alerts.filter(a => a.severity === &quot;warning&quot;).length} warning</Badge>
+          </div>
+        </div>
+
+        <div className=&quot;space-y-2&quot;>
+          {filtered.map(a => (
+            <Card key={a.id} onClick={() => setSelected(a)}
+              className={selected?.id === a.id ? &quot;border-blue-700 bg-blue-950/10&quot; : &quot;&quot;}>
+              <div className=&quot;flex items-start gap-3 p-4&quot;>
+                <div className={`w-0.5 self-stretch rounded flex-shrink-0 ${a.severity === &quot;critical&quot; ? &quot;bg-red-500&quot; : a.severity === &quot;warning&quot; ? &quot;bg-amber-500&quot; : &quot;bg-blue-500&quot;}`} />
+                <div className=&quot;flex-1 min-w-0&quot;>
+                  <div className=&quot;flex items-start justify-between gap-2&quot;>
+                    <div>
+                      <div className=&quot;text-[13px] font-medium text-gray-200&quot;>{a.title}</div>
+                      <div className=&quot;text-[11px] text-gray-500 mt-0.5&quot;>{a.resource} · {a.region} · {a.time}</div>
+                    </div>
+                    <div className=&quot;flex items-center gap-2 flex-shrink-0&quot;>
+                      {a.cost > 0 &amp;&amp; <span className=&quot;font-mono text-[12px] text-red-400 font-semibold&quot;>{fmt(a.cost)}</span>}
+                      <Badge variant={a.severity}>{a.severity}</Badge>
+                      <Badge variant={a.status}>{a.status}</Badge>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </Card>
+          ))}
+        </div>
+      </div>
+
+      <Drawer open={!!selected} onClose={() => setSelected(null)}>
+        {selected &amp;&amp; (
+          <div className=&quot;p-5 space-y-5&quot;>
+            <div>
+              <div className=&quot;flex items-center gap-2 mb-2&quot;>
+                <Badge variant={selected.severity}>{selected.severity}</Badge>
+                <Badge variant={selected.status}>{selected.status}</Badge>
+              </div>
+              <h2 className=&quot;text-[15px] font-semibold text-gray-100 mb-1&quot;>{selected.title}</h2>
+              <div className=&quot;font-mono text-[11px] text-gray-500&quot;>{selected.id} · {selected.time}</div>
+            </div>
+
+            <div className=&quot;grid grid-cols-2 gap-2&quot;>
+              <div className=&quot;bg-gray-800/50 rounded p-3&quot;>
+                <div className=&quot;text-[10px] text-gray-500 uppercase tracking-wide mb-1&quot;>Affected Resource</div>
+                <div className=&quot;font-mono text-[12px] text-gray-200&quot;>{selected.resource}</div>
+              </div>
+              <div className=&quot;bg-gray-800/50 rounded p-3&quot;>
+                <div className=&quot;text-[10px] text-gray-500 uppercase tracking-wide mb-1&quot;>Region</div>
+                <div className=&quot;font-mono text-[12px] text-gray-200&quot;>{selected.region}</div>
+              </div>
+              {selected.cost > 0 &amp;&amp; (
+                <div className=&quot;bg-red-950/40 rounded p-3 col-span-2 border border-red-900/50&quot;>
+                  <div className=&quot;text-[10px] text-gray-500 uppercase tracking-wide mb-1&quot;>Estimated Cost Impact</div>
+                  <div className=&quot;font-mono text-[16px] font-semibold text-red-400&quot;>{fmt(selected.cost)}</div>
+                </div>
+              )}
+            </div>
+
+            <div className=&quot;bg-gray-800/50 rounded-lg p-4&quot;>
+              <div className=&quot;text-[10px] font-semibold text-gray-400 uppercase tracking-wider mb-2&quot;>Root Cause Analysis</div>
+              <p className=&quot;text-[12px] text-gray-300 leading-relaxed&quot;>{selected.cause}</p>
+            </div>
+
+            <div className=&quot;bg-blue-950/40 border border-blue-900/50 rounded-lg p-4&quot;>
+              <div className=&quot;text-[10px] font-semibold text-blue-400 uppercase tracking-wider mb-2&quot;>Recommended Actions</div>
+              <div className=&quot;space-y-1.5&quot;>
+                {selected.action.split(&quot;. &quot;).filter(Boolean).map((step, i) => (
+                  <div key={i} className=&quot;flex gap-2 text-[12px] text-gray-300&quot;>
+                    <span className=&quot;font-mono text-blue-500 flex-shrink-0&quot;>{i + 1}.</span>
+                    <span>{step.replace(/^\d\. /, &quot;&quot;)}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className=&quot;flex gap-2&quot;>
+              <button className=&quot;flex-1 bg-blue-600 hover:bg-blue-500 text-white text-[12px] font-medium rounded px-3 py-2 transition-colors&quot;>
+                Acknowledge
+              </button>
+              <button className=&quot;flex-1 bg-gray-800 hover:bg-gray-700 text-gray-300 text-[12px] font-medium rounded px-3 py-2 transition-colors&quot;>
+                Create ticket
+              </button>
+            </div>
+          </div>
+        )}
+      </Drawer>
+    </div>
+  );
+};
+
+// ── BILLING ──
+const BillingPage = () => {
+  const [expanded, setExpanded] = useState(null);
+  const [dimFilter, setDimFilter] = useState(&quot;service&quot;);
+  const budgetPct = (MOCK.budget.mtd / MOCK.budget.monthly * 100).toFixed(1);
+
+  return (
+    <div className=&quot;p-5 space-y-4 overflow-y-auto&quot;>
+      {/* Top metrics */}
+      <div className=&quot;grid grid-cols-3 gap-3&quot;>
+        <Card className=&quot;border-l-2 border-l-amber-500 p-4&quot;>
+          <div className=&quot;text-[10px] text-gray-500 uppercase tracking-wider mb-2&quot;>Month-to-Date</div>
+          <div className=&quot;font-mono text-2xl font-semibold text-gray-100&quot;>{fmt(MOCK.budget.mtd)}</div>
+          <div className=&quot;text-[11px] text-gray-500 mt-1&quot;>Mar 1–7 · avg {fmt(Math.round(MOCK.budget.mtd / 7))}/day</div>
+        </Card>
+        <Card className=&quot;border-l-2 border-l-red-500 p-4&quot;>
+          <div className=&quot;text-[10px] text-gray-500 uppercase tracking-wider mb-2&quot;>Forecasted Month-End</div>
+          <div className=&quot;font-mono text-2xl font-semibold text-red-400&quot;>{fmt(MOCK.budget.forecast)}</div>
+          <div className=&quot;text-[11px] text-red-400 mt-1&quot;>+{fmt(MOCK.budget.forecast - MOCK.budget.monthly)} vs budget</div>
+        </Card>
+        <Card className=&quot;border-l-2 border-l-blue-500 p-4&quot;>
+          <div className=&quot;text-[10px] text-gray-500 uppercase tracking-wider mb-2&quot;>Budget Utilization</div>
+          <div className=&quot;font-mono text-2xl font-semibold text-gray-100&quot;>{budgetPct}%</div>
+          <div className=&quot;h-1.5 bg-gray-800 rounded-full mt-2 overflow-hidden&quot;>
+            <div className=&quot;h-full rounded-full bg-amber-500&quot; style={{ width: `${budgetPct}%` }} />
+          </div>
+          <div className=&quot;text-[11px] text-gray-500 mt-1&quot;>{fmt(MOCK.budget.monthly)} total budget</div>
+        </Card>
+      </div>
+
+      {/* Dimension filter */}
+      <div className=&quot;flex items-center gap-3&quot;>
+        <span className=&quot;text-[11px] text-gray-500&quot;>View by:</span>
+        {[&quot;service&quot;, &quot;region&quot;, &quot;tag&quot;].map(d => (
+          <button key={d} onClick={() => setDimFilter(d)}
+            className={`px-3 py-1 rounded text-[11px] font-medium capitalize transition-colors ${dimFilter === d ? &quot;bg-blue-600 text-white&quot; : &quot;bg-gray-800 text-gray-400 hover:bg-gray-700&quot;}`}>
+            {d}
+          </button>
+        ))}
+      </div>
+
+      {/* Cost breakdown table */}
+      <Card>
+        <CardHeader title=&quot;Cost Breakdown&quot; sub=&quot;Click a service to expand breakdown&quot; />
+        <div>
+          {MOCK.costByService.map(s => (
+            <div key={s.id}>
+              <div
+                className={`flex items-center gap-3 px-4 py-3 border-b border-gray-800 cursor-pointer hover:bg-gray-800/50 transition-colors ${expanded === s.id ? &quot;bg-gray-800/30&quot; : &quot;&quot;}`}
+                onClick={() => setExpanded(expanded === s.id ? null : s.id)}
+              >
+                <span className=&quot;w-2.5 h-2.5 rounded-sm flex-shrink-0&quot; style={{ background: s.color }} />
+                <span className=&quot;text-[13px] font-medium text-gray-200 flex-1&quot;>{s.name}</span>
+                <div className=&quot;flex items-center gap-4&quot;>
+                  <div className=&quot;w-28 hidden sm:block&quot;>
+                    <CostBar value={s.mtd} max={MOCK.costByService[0].mtd} color={s.color} />
+                  </div>
+                  <span className=&quot;font-mono text-[13px] text-gray-200 w-20 text-right&quot;>{fmt(s.mtd)}</span>
+                  <MomBadge val={s.mom} />
+                  <span className=&quot;text-gray-600 text-[12px] w-4&quot;>{expanded === s.id ? &quot;▲&quot; : &quot;▼&quot;}</span>
+                </div>
+              </div>
+
+              {expanded === s.id &amp;&amp; (
+                <div className=&quot;bg-gray-950/80 border-b border-gray-800&quot;>
+                  {s.breakdown.map((b, i) => (
+                    <div key={i} className=&quot;flex items-center gap-3 px-8 py-2.5 border-b border-gray-800/50 last:border-0&quot;>
+                      <span className=&quot;text-[11px] text-gray-400 flex-1&quot;>{b.name}</span>
+                      <span className=&quot;font-mono text-[12px] text-gray-300 w-20 text-right&quot;>{fmt(b.cost)}</span>
+                      <MomBadge val={b.mom} />
+                      <div className=&quot;w-4&quot; />
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+      </Card>
+    </div>
+  );
+};
+
+// ── KPI TRACKER ──
+const KPIPage = () => {
+  const [expanded, setExpanded] = useState(null);
+
+  const sorted = [...MOCK.kpis].sort((a, b) => {
+    const order = { critical: 0, warning: 1, &quot;on-track&quot;: 2 };
+    return order[a.status] - order[b.status];
+  });
+
+  return (
+    <div className=&quot;p-5 space-y-4 overflow-y-auto&quot;>
+      <div className=&quot;flex items-center gap-2 mb-2&quot;>
+        <Badge variant=&quot;critical&quot;>{MOCK.kpis.filter(k => k.status === &quot;critical&quot;).length} at risk</Badge>
+        <Badge variant=&quot;warning&quot;>{MOCK.kpis.filter(k => k.status === &quot;warning&quot;).length} warning</Badge>
+        <Badge variant=&quot;on-track&quot;>{MOCK.kpis.filter(k => k.status === &quot;on-track&quot;).length} on track</Badge>
+        <span className=&quot;text-[11px] text-gray-500 ml-1&quot;>At-risk items sorted to top</span>
+      </div>
+
+      <div className=&quot;space-y-2&quot;>
+        {sorted.map(k => (
+          <Card key={k.id} className={expanded === k.id ? &quot;border-blue-700&quot; : &quot;&quot;}>
+            <div
+              className=&quot;flex items-center gap-4 px-4 py-3 cursor-pointer hover:bg-gray-800/40 transition-colors&quot;
+              onClick={() => setExpanded(expanded === k.id ? null : k.id)}
+            >
+              <Badge variant={k.status}>{k.status === &quot;on-track&quot; ? &quot;ON TRACK&quot; : k.status === &quot;critical&quot; ? &quot;AT RISK&quot; : &quot;WARNING&quot;}</Badge>
+              <div className=&quot;flex-1 min-w-0&quot;>
+                <div className=&quot;flex items-center justify-between mb-1&quot;>
+                  <span className=&quot;text-[13px] font-medium text-gray-200&quot;>{k.name}</span>
+                  <div className=&quot;flex items-center gap-3&quot;>
+                    <span className=&quot;text-[11px] text-gray-500&quot;>Goal: <span className=&quot;font-mono text-gray-400&quot;>{k.goal}</span></span>
+                    <span className={`font-mono text-[14px] font-semibold ${k.status === &quot;critical&quot; ? &quot;text-red-400&quot; : k.status === &quot;warning&quot; ? &quot;text-amber-400&quot; : &quot;text-emerald-400&quot;}`}>
+                      {k.actual}%
+                    </span>
+                  </div>
+                </div>
+                <KpiBar actual={k.actual} goal={k.goalVal} dir={k.dir} status={k.status} />
+              </div>
+              {k.savings > 0 &amp;&amp; (
+                <div className=&quot;text-right flex-shrink-0&quot;>
+                  <div className=&quot;text-[10px] text-gray-500&quot;>Est. savings</div>
+                  <div className=&quot;font-mono text-[12px] text-emerald-400&quot;>{fmt(k.savings)}/mo</div>
+                </div>
+              )}
+              <span className=&quot;text-gray-600 text-[12px] flex-shrink-0&quot;>{expanded === k.id ? &quot;▲&quot; : &quot;▼&quot;}</span>
+            </div>
+
+            {expanded === k.id &amp;&amp; (
+              <div className=&quot;border-t border-gray-800 p-4 space-y-4&quot;>
+                {k.affectedList.length > 0 &amp;&amp; (
+                  <div>
+                    <div className=&quot;text-[10px] font-semibold text-gray-500 uppercase tracking-wider mb-2&quot;>
+                      Affected Resources ({k.affected || k.affectedList.length})
+                    </div>
+                    <div className=&quot;space-y-1&quot;>
+                      {k.affectedList.map((item, i) => (
+                        <div key={i} className=&quot;flex items-center gap-2 px-3 py-1.5 bg-gray-800/50 rounded font-mono text-[11px] text-gray-400&quot;>
+                          <span className=&quot;w-1.5 h-1.5 rounded-full bg-red-500 flex-shrink-0&quot; />
+                          {item}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                <div className=&quot;bg-blue-950/40 border border-blue-900/50 rounded-lg p-4&quot;>
+                  <div className=&quot;text-[10px] font-semibold text-blue-400 uppercase tracking-wider mb-2&quot;>Optimization Suggestion</div>
+                  <p className=&quot;text-[12px] text-gray-300 leading-relaxed&quot;>{k.suggestion}</p>
+                  {k.savings > 0 &amp;&amp; (
+                    <div className=&quot;mt-3 flex items-center gap-2&quot;>
+                      <span className=&quot;text-[11px] text-gray-500&quot;>Estimated savings if resolved:</span>
+                      <span className=&quot;font-mono text-[13px] font-semibold text-emerald-400&quot;>{fmt(k.savings)}/mo</span>
+                    </div>
+                  )}
+                </div>
+
+                <button className=&quot;w-full text-[12px] bg-gray-800 border border-gray-700 rounded px-3 py-2 text-gray-300 hover:border-gray-500 hover:text-white transition-colors&quot;>
+                  Create optimization ticket →
+                </button>
+              </div>
+            )}
+          </Card>
+        ))}
+      </div>
+    </div>
+  );
+};
+
+// ─────────────────────────────────────────────
+// MAIN APP
+// ─────────────────────────────────────────────
+function App() {
+  const [page, setPage] = useState(&quot;dashboard&quot;);
+  const [region, setRegion] = useState(&quot;All regions&quot;);
+  const [timeRange, setTimeRange] = useState(&quot;Mar 2026&quot;);
+  const [alertDrawer, setAlertDrawer] = useState(null);
+  const [newAlertModal, setNewAlertModal] = useState(false);
+  const [alertForm, setAlertForm] = useState({ name: &quot;&quot;, service: &quot;EC2&quot;, threshold: &quot;&quot;, severity: &quot;warning&quot; });
+  const [alertSaved, setAlertSaved] = useState(false);
+
+  const criticalCount = MOCK.alerts.filter(a => a.severity === &quot;critical&quot; &amp;&amp; a.status === &quot;open&quot;).length;
+
+  const navItems = [
+    { id: &quot;dashboard&quot;, label: &quot;Overview&quot;, icon: <svg width=&quot;14&quot; height=&quot;14&quot; fill=&quot;none&quot; stroke=&quot;currentColor&quot; strokeWidth=&quot;1.8&quot; viewBox=&quot;0 0 24 24&quot;><rect x=&quot;3&quot; y=&quot;3&quot; width=&quot;7&quot; height=&quot;7&quot; rx=&quot;1&quot;/><rect x=&quot;14&quot; y=&quot;3&quot; width=&quot;7&quot; height=&quot;7&quot; rx=&quot;1&quot;/><rect x=&quot;3&quot; y=&quot;14&quot; width=&quot;7&quot; height=&quot;7&quot; rx=&quot;1&quot;/><rect x=&quot;14&quot; y=&quot;14&quot; width=&quot;7&quot; height=&quot;7&quot; rx=&quot;1&quot;/></svg> },
+    { id: &quot;alerts&quot;, label: &quot;Alerts&quot;, badge: criticalCount, icon: <svg width=&quot;14&quot; height=&quot;14&quot; fill=&quot;none&quot; stroke=&quot;currentColor&quot; strokeWidth=&quot;1.8&quot; viewBox=&quot;0 0 24 24&quot;><path d=&quot;M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9&quot;/><path d=&quot;M13.73 21a2 2 0 0 1-3.46 0&quot;/></svg> },
+    { id: &quot;ec2&quot;, label: &quot;EC2 Instances&quot;, icon: <svg width=&quot;14&quot; height=&quot;14&quot; fill=&quot;none&quot; stroke=&quot;currentColor&quot; strokeWidth=&quot;1.8&quot; viewBox=&quot;0 0 24 24&quot;><rect x=&quot;2&quot; y=&quot;3&quot; width=&quot;20&quot; height=&quot;14&quot; rx=&quot;2&quot;/><line x1=&quot;12&quot; y1=&quot;17&quot; x2=&quot;12&quot; y2=&quot;21&quot;/></svg> },
+    { id: &quot;billing&quot;, label: &quot;Billing&quot;, icon: <svg width=&quot;14&quot; height=&quot;14&quot; fill=&quot;none&quot; stroke=&quot;currentColor&quot; strokeWidth=&quot;1.8&quot; viewBox=&quot;0 0 24 24&quot;><line x1=&quot;12&quot; y1=&quot;1&quot; x2=&quot;12&quot; y2=&quot;23&quot;/><path d=&quot;M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6&quot;/></svg> },
+    { id: &quot;kpi&quot;, label: &quot;KPI Tracker&quot;, icon: <svg width=&quot;14&quot; height=&quot;14&quot; fill=&quot;none&quot; stroke=&quot;currentColor&quot; strokeWidth=&quot;1.8&quot; viewBox=&quot;0 0 24 24&quot;><polyline points=&quot;22 12 18 12 15 21 9 3 6 12 2 12&quot;/></svg> },
+  ];
+
+  const handleSaveAlert = () => {
+    setAlertSaved(true);
+    setTimeout(() => { setAlertSaved(false); setNewAlertModal(false); setAlertForm({ name: &quot;&quot;, service: &quot;EC2&quot;, threshold: &quot;&quot;, severity: &quot;warning&quot; }); }, 1200);
+  };
+
+  const pageTitle = { dashboard: &quot;FinOps Overview&quot;, alerts: &quot;Alerts&quot;, ec2: &quot;EC2 Instances&quot;, billing: &quot;Billing / Cost Explorer&quot;, kpi: &quot;KPI Tracker&quot; };
+
+  return (
+    <div className=&quot;flex h-screen bg-gray-950 text-gray-300 font-sans overflow-hidden&quot;>
+
+      {/* Sidebar */}
+      <aside className=&quot;w-48 flex-shrink-0 bg-gray-950 border-r border-gray-800 flex flex-col&quot;>
+        {/* Logo */}
+        <div className=&quot;flex items-center gap-2.5 px-4 py-4 border-b border-gray-800&quot;>
+          <div className=&quot;w-7 h-7 bg-blue-600 rounded-md flex items-center justify-center flex-shrink-0&quot;>
+            <svg width=&quot;14&quot; height=&quot;14&quot; viewBox=&quot;0 0 24 24&quot; fill=&quot;none&quot; stroke=&quot;#fff&quot; strokeWidth=&quot;2&quot;><path d=&quot;M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z&quot;/></svg>
+          </div>
+          <div>
+            <div className=&quot;text-[13px] font-semibold text-gray-100 leading-tight&quot;>CloudView</div>
+            <div className=&quot;text-[10px] font-mono text-gray-600&quot;>FinOps Platform</div>
+          </div>
+        </div>
+
+        {/* Nav */}
+        <nav className=&quot;flex-1 py-3 px-2&quot;>
+          <div className=&quot;text-[9px] font-mono text-gray-700 uppercase tracking-widest px-2 py-1.5 mb-1&quot;>Navigation</div>
+          {navItems.map(item => (
+            <button key={item.id} onClick={() => setPage(item.id)}
+              className={`w-full flex items-center justify-between px-2.5 py-2 rounded text-[12px] font-medium mb-0.5 transition-colors ${page === item.id ? &quot;bg-blue-600/20 text-blue-300 border border-blue-800/50&quot; : &quot;text-gray-500 hover:text-gray-200 hover:bg-gray-800/60&quot;}`}>
+              <div className=&quot;flex items-center gap-2.5&quot;>
+                <span className={page === item.id ? &quot;text-blue-400&quot; : &quot;text-gray-600&quot;}>{item.icon}</span>
+                {item.label}
+              </div>
+              {item.badge > 0 &amp;&amp; (
+                <span className=&quot;bg-red-900 text-red-400 font-mono text-[9px] font-bold px-1.5 py-0.5 rounded&quot;>{item.badge}</span>
+              )}
+            </button>
+          ))}
+        </nav>
+
+        {/* Status */}
+        <div className=&quot;px-4 py-3 border-t border-gray-800&quot;>
+          <div className=&quot;flex items-center gap-1.5&quot;>
+            <span className=&quot;w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse&quot; />
+            <span className=&quot;font-mono text-[10px] text-gray-600&quot;>Live · synced 2m ago</span>
+          </div>
+        </div>
+      </aside>
+
+      {/* Main */}
+      <div className=&quot;flex-1 flex flex-col overflow-hidden&quot;>
+
+        {/* Topbar */}
+        <header className=&quot;flex items-center justify-between px-5 py-3 border-b border-gray-800 bg-gray-950 flex-shrink-0&quot;>
+          <div className=&quot;flex items-center gap-3&quot;>
+            <h1 className=&quot;text-[14px] font-semibold text-gray-100&quot;>{pageTitle[page]}</h1>
+            {/* Filter pills */}
+            <div className=&quot;flex items-center gap-2&quot;>
+              <select value={region} onChange={e => setRegion(e.target.value)}
+                className=&quot;bg-gray-800 border border-gray-700 rounded px-2.5 py-1 text-[11px] text-gray-400 focus:outline-none focus:border-blue-600 cursor-pointer&quot;>
+                {MOCK.regions.map(r => <option key={r}>{r}</option>)}
+              </select>
+              <select value={timeRange} onChange={e => setTimeRange(e.target.value)}
+                className=&quot;bg-gray-800 border border-gray-700 rounded px-2.5 py-1 text-[11px] text-gray-400 focus:outline-none focus:border-blue-600 cursor-pointer&quot;>
+                {MOCK.timeRanges.map(t => <option key={t}>{t}</option>)}
+              </select>
+            </div>
+          </div>
+
+          <div className=&quot;flex items-center gap-2&quot;>
+            <span className=&quot;text-[11px] font-mono text-gray-600 mr-1&quot;>{region} · {timeRange}</span>
+            <button onClick={() => setNewAlertModal(true)}
+              className=&quot;flex items-center gap-1.5 bg-blue-600 hover:bg-blue-500 text-white text-[12px] font-medium rounded px-3 py-1.5 transition-colors&quot;>
+              <svg width=&quot;11&quot; height=&quot;11&quot; viewBox=&quot;0 0 24 24&quot; fill=&quot;none&quot; stroke=&quot;currentColor&quot; strokeWidth=&quot;2.5&quot;><line x1=&quot;12&quot; y1=&quot;5&quot; x2=&quot;12&quot; y2=&quot;19&quot;/><line x1=&quot;5&quot; y1=&quot;12&quot; x2=&quot;19&quot; y2=&quot;12&quot;/></svg>
+              New Alert
+            </button>
+          </div>
+        </header>
+
+        {/* Page content */}
+        <main className=&quot;flex-1 overflow-hidden&quot;>
+          {page === &quot;dashboard&quot; &amp;&amp; <div className=&quot;h-full overflow-y-auto&quot;><Dashboard onAlertClick={setAlertDrawer} setPage={setPage} /></div>}
+          {page === &quot;ec2&quot; &amp;&amp; <EC2Page />}
+          {page === &quot;alerts&quot; &amp;&amp; <AlertsPage />}
+          {page === &quot;billing&quot; &amp;&amp; <div className=&quot;h-full overflow-y-auto&quot;><BillingPage /></div>}
+          {page === &quot;kpi&quot; &amp;&amp; <div className=&quot;h-full overflow-y-auto&quot;><KPIPage /></div>}
+        </main>
+      </div>
+
+      {/* Alert detail drawer (from dashboard click) */}
+      <Drawer open={!!alertDrawer} onClose={() => setAlertDrawer(null)}>
+        {alertDrawer &amp;&amp; (
+          <div className=&quot;p-5 space-y-5&quot;>
+            <div>
+              <div className=&quot;flex items-center gap-2 mb-2&quot;>
+                <Badge variant={alertDrawer.severity}>{alertDrawer.severity}</Badge>
+                <Badge variant={alertDrawer.status}>{alertDrawer.status}</Badge>
+              </div>
+              <h2 className=&quot;text-[15px] font-semibold text-gray-100 mb-1&quot;>{alertDrawer.title}</h2>
+              <div className=&quot;font-mono text-[11px] text-gray-500&quot;>{alertDrawer.id} · {alertDrawer.time}</div>
+            </div>
+            {alertDrawer.cost > 0 &amp;&amp; (
+              <div className=&quot;bg-red-950/40 border border-red-900/50 rounded-lg p-4&quot;>
+                <div className=&quot;text-[10px] text-gray-500 uppercase tracking-wide mb-1&quot;>Cost Impact</div>
+                <div className=&quot;font-mono text-xl font-semibold text-red-400&quot;>{fmt(alertDrawer.cost)}</div>
+              </div>
+            )}
+            <div className=&quot;bg-gray-800/50 rounded-lg p-4&quot;>
+              <div className=&quot;text-[10px] font-semibold text-gray-400 uppercase tracking-wider mb-2&quot;>Root Cause</div>
+              <p className=&quot;text-[12px] text-gray-300 leading-relaxed&quot;>{alertDrawer.cause}</p>
+            </div>
+            <div className=&quot;bg-blue-950/40 border border-blue-900/50 rounded-lg p-4&quot;>
+              <div className=&quot;text-[10px] font-semibold text-blue-400 uppercase tracking-wider mb-2&quot;>Recommended Actions</div>
+              <div className=&quot;space-y-1.5&quot;>
+                {alertDrawer.action.split(&quot;. &quot;).filter(Boolean).map((step, i) => (
+                  <div key={i} className=&quot;flex gap-2 text-[12px] text-gray-300&quot;>
+                    <span className=&quot;font-mono text-blue-500 flex-shrink-0&quot;>{i + 1}.</span>
+                    <span>{step.replace(/^\d\. /, &quot;&quot;)}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+            <div className=&quot;flex gap-2&quot;>
+              <button className=&quot;flex-1 bg-blue-600 hover:bg-blue-500 text-white text-[12px] font-medium rounded px-3 py-2 transition-colors&quot;>Acknowledge</button>
+              <button className=&quot;flex-1 bg-gray-800 hover:bg-gray-700 text-gray-300 text-[12px] font-medium rounded px-3 py-2 transition-colors&quot;>Create ticket</button>
+            </div>
+          </div>
+        )}
+      </Drawer>
+
+      {/* New Alert Modal */}
+      <Modal open={newAlertModal} onClose={() => setNewAlertModal(false)}>
+        <div className=&quot;bg-gray-900 border border-gray-700 rounded-xl shadow-2xl p-6&quot;>
+          <div className=&quot;flex items-center justify-between mb-5&quot;>
+            <h2 className=&quot;text-[15px] font-semibold text-gray-100&quot;>Create Alert Rule</h2>
+            <button onClick={() => setNewAlertModal(false)} className=&quot;text-gray-500 hover:text-gray-200 text-xl leading-none&quot;>×</button>
+          </div>
+
+          <div className=&quot;space-y-4&quot;>
+            <div>
+              <label className=&quot;block text-[11px] font-semibold text-gray-500 uppercase tracking-wider mb-1.5&quot;>Alert Name</label>
+              <input value={alertForm.name} onChange={e => setAlertForm({...alertForm, name: e.target.value})}
+                placeholder=&quot;e.g. EC2 CPU > 85% for 30min&quot;
+                className=&quot;w-full bg-gray-800 border border-gray-700 rounded px-3 py-2 text-[13px] text-gray-200 focus:outline-none focus:border-blue-600 placeholder-gray-600&quot; />
+            </div>
+            <div className=&quot;grid grid-cols-2 gap-3&quot;>
+              <div>
+                <label className=&quot;block text-[11px] font-semibold text-gray-500 uppercase tracking-wider mb-1.5&quot;>Service</label>
+                <select value={alertForm.service} onChange={e => setAlertForm({...alertForm, service: e.target.value})}
+                  className=&quot;w-full bg-gray-800 border border-gray-700 rounded px-3 py-2 text-[13px] text-gray-200 focus:outline-none focus:border-blue-600&quot;>
+                  {[&quot;EC2&quot;, &quot;RDS&quot;, &quot;Lambda&quot;, &quot;S3&quot;, &quot;Billing&quot;].map(s => <option key={s}>{s}</option>)}
+                </select>
+              </div>
+              <div>
+                <label className=&quot;block text-[11px] font-semibold text-gray-500 uppercase tracking-wider mb-1.5&quot;>Severity</label>
+                <select value={alertForm.severity} onChange={e => setAlertForm({...alertForm, severity: e.target.value})}
+                  className=&quot;w-full bg-gray-800 border border-gray-700 rounded px-3 py-2 text-[13px] text-gray-200 focus:outline-none focus:border-blue-600&quot;>
+                  {[&quot;critical&quot;, &quot;warning&quot;, &quot;info&quot;].map(s => <option key={s}>{s}</option>)}
+                </select>
+              </div>
+            </div>
+            <div>
+              <label className=&quot;block text-[11px] font-semibold text-gray-500 uppercase tracking-wider mb-1.5&quot;>Threshold / Condition</label>
+              <input value={alertForm.threshold} onChange={e => setAlertForm({...alertForm, threshold: e.target.value})}
+                placeholder=&quot;e.g. Cost > ¥500K/day or CPU > 90%&quot;
+                className=&quot;w-full bg-gray-800 border border-gray-700 rounded px-3 py-2 text-[13px] text-gray-200 focus:outline-none focus:border-blue-600 placeholder-gray-600&quot; />
+            </div>
+          </div>
+
+          <div className=&quot;flex gap-3 mt-6&quot;>
+            <button onClick={handleSaveAlert}
+              className={`flex-1 text-[13px] font-semibold rounded px-4 py-2.5 transition-colors ${alertSaved ? &quot;bg-emerald-600 text-white&quot; : &quot;bg-blue-600 hover:bg-blue-500 text-white&quot;}`}>
+              {alertSaved ? &quot;✓ Alert Created&quot; : &quot;Create Alert&quot;}
+            </button>
+            <button onClick={() => setNewAlertModal(false)}
+              className=&quot;flex-1 bg-gray-800 hover:bg-gray-700 text-gray-300 text-[13px] font-medium rounded px-4 py-2.5 transition-colors&quot;>
+              Cancel
+            </button>
+          </div>
+        </div>
+      </Modal>
+    </div>
+  );
+}
+
+
+const root = ReactDOM.createRoot(document.getElementById('root'));
+root.render(<App />);
+</script>
+</body>
+</html>"
             style="width:100%;height:100%;border:none;display:block"
             title="CloudView FinOps Interactive Prototype"
-            loading="lazy"
           ></iframe>
           <!-- Click-through overlay with hint that fades -->
           <div id="iframeHint" style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none;opacity:1;transition:opacity .4s">
@@ -798,10 +1861,10 @@ body{padding-top:66px}
       <div class="oc"><div class="oc-v" style="color:var(--red)">0次</div><div class="oc-l">跨模块筛选重设<br><span style="font-size:10px">上下文全程保留</span></div></div>
     </div>
     <div class="rg">
-      <div class="rc dk"><div class="rc-i">💡</div><div class="rc-t">核心洞察</div><div class="rc-b">AWS CID 最根本的问题不是视觉风格，而是<strong>信息架构混乱与角色需求未分层</strong>。QuickSight 模板化使所有内容权重相同，造成"数据过载但决策困难"的悖论。重设计最大价值在于建立"看见→理解→行动→追踪"的完整决策旅程。</div></div>
-      <div class="rc lt"><div class="rc-i">⚠️</div><div class="rc-t">设计约束与取舍</div><div class="rc-b" style="color:var(--ink2)">AWS CID 基于 QuickSight 构建，跨页面上下文保留受限于平台能力。本方案作为"理想态"设计，部分功能需结合 QuickSight API 定制或迁移至独立前端实现。实际落地建议分阶段推进，优先修复颜色语义系统和 KPI 超标告警逻辑。</div></div>
-      <div class="rc lt"><div class="rc-i">🚀</div><div class="rc-t">下一步迭代</div><div class="rc-b" style="color:var(--ink2)">① <strong>AI 异常诊断</strong>：成本突增时自动分析根因，提供中文说明。② <strong>预测成本模型</strong>：基于历史预测下月账单，标注超预算风险。③ <strong>Slack / 钉钉推送</strong>：告警集成至协作工具，形成 FinOps 工作流闭环。</div></div>
-      <div class="rc dk"><div class="rc-i">📐</div><div class="rc-t">通用设计原则</div><div class="rc-b">云成本工具的核心目标是<strong>降低决策摩擦</strong>，而非炫技式数据展示。颜色是最快的认知通道，语义混用代价远大于审美收益。每个数据展示背后，都应该有"用户能做什么"的设计思考。</div></div>
+      <div class="rc"><div class="rc-t">核心洞察</div><div class="rc-b">AWS CID 最根本的问题不是视觉风格，而是<strong>信息架构混乱与角色需求未分层</strong>。QuickSight 模板化使所有内容权重相同，造成"数据过载但决策困难"的悖论。重设计最大价值在于建立"看见→理解→行动→追踪"的完整决策旅程。</div></div>
+      <div class="rc"><div class="rc-t">设计约束与取舍</div><div class="rc-b">AWS CID 基于 QuickSight 构建，跨页面上下文保留受限于平台能力。本方案作为"理想态"设计，部分功能需结合 QuickSight API 定制或迁移至独立前端实现。实际落地建议分阶段推进，优先修复颜色语义系统和 KPI 超标告警逻辑。</div></div>
+      <div class="rc"><div class="rc-t">下一步迭代</div><div class="rc-b">① <strong>AI 异常诊断</strong>：成本突增时自动分析根因，提供中文说明。② <strong>预测成本模型</strong>：基于历史预测下月账单，标注超预算风险。③ <strong>Slack / 钉钉推送</strong>：告警集成至协作工具，形成 FinOps 工作流闭环。</div></div>
+      <div class="rc"><div class="rc-t">通用设计原则</div><div class="rc-b">云成本工具的核心目标是<strong>降低决策摩擦</strong>，而非炫技式数据展示。颜色是最快的认知通道，语义混用代价远大于审美收益。每个数据展示背后，都应该有"用户能做什么"的设计思考。</div></div>
     </div>
   </div>
 </section>
@@ -864,3 +1927,4 @@ document.querySelectorAll('.reveal').forEach(el=>obs.observe(el));
 </script>
 </body>
 </html>
+
