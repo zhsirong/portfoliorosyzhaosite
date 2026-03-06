@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Contact — Sirong Zhao</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{--ink:#111010;--paper:#f2f0eb;--warm-mid:#9e9a93;--border:#e2dfd8;--card:#faf9f6;--accent:#c8502a}
+html{scroll-behavior:smooth}
+body{background:var(--paper);color:var(--ink);font-family:'DM Sans',sans-serif;font-weight:300;overflow-x:hidden}
+
+
+
+/* ── NAV ── */
+nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;justify-content:space-between;align-items:center;padding:22px 48px;background:rgba(242,240,235,.92);backdrop-filter:blur(14px);border-bottom:1px solid var(--border)}
+.nav-logo{font-family:'Cormorant Garamond',serif;font-size:17px;font-weight:400;text-decoration:none;color:var(--ink)}
+.nav-links{display:flex;gap:32px;list-style:none}
+.nav-links a{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink);text-decoration:none;opacity:.5;transition:opacity .2s}
+.nav-links a:hover,.nav-links a.active{opacity:1}
+
+/* ── HERO ── */
+.hero{min-height:52vh;display:flex;flex-direction:column;justify-content:flex-end;padding:0 64px 72px;margin-top:65px;border-bottom:1px solid var(--border);position:relative;overflow:hidden}
+.hero-eyebrow{font-size:9px;letter-spacing:.22em;text-transform:uppercase;color:var(--warm-mid);margin-bottom:24px;display:flex;align-items:center;gap:12px}
+.hero-eyebrow::after{content:'';width:40px;height:1px;background:var(--border)}
+.hero-title{font-family:'Cormorant Garamond',serif;font-size:clamp(72px,10vw,128px);font-weight:300;line-height:.88;letter-spacing:-.04em}
+.hero-title em{font-style:italic;color:var(--accent)}
+.hero-sub{margin-top:32px;font-size:15px;color:#555;font-weight:300;line-height:1.85;max-width:460px}
+.hero-deco{position:absolute;right:64px;bottom:72px;font-family:'Cormorant Garamond',serif;font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--border);writing-mode:vertical-rl}
+
+/* ── CONTACT LAYOUT ── */
+.contact-section{display:grid;grid-template-columns:1fr;border-bottom:1px solid var(--border)}
+
+/* ── LEFT ── */
+.contact-left{padding:80px 64px;display:flex;flex-direction:column;gap:48px}
+.slabel{font-size:9px;letter-spacing:.22em;text-transform:uppercase;color:var(--warm-mid);margin-bottom:28px;display:flex;align-items:center;gap:12px}
+.slabel::after{content:'';flex:1;height:1px;background:var(--border)}
+
+.contact-links{display:flex;flex-direction:column;gap:2px}
+.contact-link-item{display:flex;align-items:center;justify-content:space-between;padding:24px 28px;border:1px solid var(--border);background:var(--card);text-decoration:none;color:var(--ink);transition:all .22s;gap:16px}
+.contact-link-item:hover{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+.contact-link-item:hover .cli-arrow{transform:translate(3px,-3px)}
+.cli-left{display:flex;flex-direction:column;gap:5px}
+.cli-type{font-size:9px;letter-spacing:.18em;text-transform:uppercase;opacity:.5}
+.cli-value{font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:400;line-height:1.2}
+.cli-arrow{font-size:18px;transition:transform .22s;flex-shrink:0}
+
+.availability{padding:28px 32px;border:1px solid var(--border);background:var(--paper);position:relative;overflow:hidden}
+.availability::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:linear-gradient(to bottom,transparent,var(--accent),transparent)}
+.avail-dot{display:inline-flex;align-items:center;gap:8px;font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--accent);margin-bottom:14px}
+.avail-dot::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--accent);animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(1.5)}}
+.avail-text{font-family:'Cormorant Garamond',serif;font-size:17px;font-weight:300;line-height:1.6;color:var(--ink)}
+
+/* ── RIGHT: FORM ── */
+.contact-right{padding:80px 64px;background:var(--card)}
+
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px}
+.form-group{margin-bottom:20px;display:flex;flex-direction:column;gap:8px}
+.form-group:last-of-type{margin-bottom:0}
+.form-label{font-size:9px;letter-spacing:.2em;text-transform:uppercase;color:var(--warm-mid)}
+.form-input{width:100%;background:var(--paper);border:1px solid var(--border);border-radius:2px;padding:14px 18px;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:300;color:var(--ink);outline:none;transition:border-color .2s,box-shadow .2s;-webkit-appearance:none}
+.form-input:focus{border-color:var(--ink);box-shadow:0 0 0 3px rgba(17,16,16,.06)}
+.form-input::placeholder{color:var(--warm-mid);opacity:.7}
+textarea.form-input{resize:vertical;min-height:148px;line-height:1.75}
+
+.form-submit{margin-top:28px;display:flex;align-items:center;gap:20px}
+.submit-btn{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--paper);background:var(--ink);border:1px solid var(--ink);border-radius:2px;padding:14px 36px;cursor:none;transition:background .22s,border-color .22s;font-family:'DM Sans',sans-serif;font-weight:400}
+.submit-btn:hover{background:var(--accent);border-color:var(--accent)}
+.form-note{font-size:11px;color:var(--warm-mid);line-height:1.6}
+
+.form-success{display:none;padding:40px 32px;border:1px solid var(--border);background:var(--paper);text-align:center}
+.form-success.show{display:block}
+.success-icon{font-size:26px;margin-bottom:16px;color:var(--accent)}
+.success-title{font-family:'Cormorant Garamond',serif;font-size:28px;font-weight:300;margin-bottom:10px}
+.success-title em{font-style:italic;color:var(--accent)}
+.success-sub{font-size:13px;color:#666;line-height:1.75}
+
+/* ── FOOTER ── */
+footer{padding:44px 64px;display:flex;justify-content:space-between;align-items:center;border-top:1px solid var(--border)}
+.fname{font-family:'Cormorant Garamond',serif;font-size:18px;font-weight:300}
+.fcopy{font-size:11px;color:var(--warm-mid)}
+
+/* ── REVEAL ── */
+.reveal{opacity:0;transform:translateY(20px);transition:opacity .8s ease,transform .8s ease}
+.reveal.visible{opacity:1;transform:translateY(0)}
+@keyframes fadeUp{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:translateY(0)}}
+.d1{animation:fadeUp .9s ease .1s both}
+.d2{animation:fadeUp .9s ease .25s both}
+.d3{animation:fadeUp .9s ease .4s both}
+
+/* ── RESPONSIVE ── */
+@media(max-width:768px){
+  nav{padding:16px 24px}
+  .hero{padding:0 24px 56px;min-height:44vh}
+  .hero-deco{display:none}
+  .contact-section{grid-template-columns:1fr}
+  .contact-left{padding:56px 24px;border-right:none;border-bottom:1px solid var(--border);gap:32px}
+  .contact-right{padding:56px 24px}
+  .form-row{grid-template-columns:1fr}
+  footer{flex-direction:column;gap:10px;text-align:center;padding:32px 24px}
+}
+</style>
+</head>
+<body>
+<nav>
+  <a href="sirong-portfolio.html" class="nav-logo">Sirong Zhao</a>
+  <ul class="nav-links">
+    <li><a href="sirong-portfolio.html">Work</a></li>
+    <li><a href="about.html">About</a></li>
+    <li><a href="contact.html" class="active">Contact</a></li>
+  </ul>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-eyebrow d1">Get in touch</div>
+  <h1 class="hero-title d2">Let's<br><em>Connect</em></h1>
+  <p class="hero-sub d3">Open to full-time product design roles, freelance projects, and research collaborations. I'd love to hear from you.</p>
+  <span class="hero-deco">zhsirong@umich.edu</span>
+</section>
+
+<!-- CONTACT GRID -->
+<div class="contact-section">
+
+  <!-- LEFT -->
+  <div class="contact-left">
+    <div>
+      <div class="slabel">Reach out directly</div>
+      <div class="contact-links">
+        <div class="contact-link-item" id="emailCard" onclick="copyEmail()" style="cursor:none">
+          <div class="cli-left">
+            <span class="cli-type" id="emailLabel">Email — click to copy</span>
+            <span class="cli-value">zhsirong@umich.edu</span>
+          </div>
+          <span class="cli-arrow" id="copyIcon">⎘</span>
+        </div>
+        <a href="https://www.linkedin.com/in/sirong-zhao/" target="_blank" class="contact-link-item">
+          <div class="cli-left">
+            <span class="cli-type">LinkedIn</span>
+            <span class="cli-value">linkedin.com/in/sirong-zhao</span>
+          </div>
+          <span class="cli-arrow">↗</span>
+        </a>
+      </div>
+    </div>
+
+    <div class="availability">
+      <div class="avail-dot">Available now</div>
+      <p class="avail-text">Open to full-time UX &amp; product design roles.<br>Based in Ann Arbor, MI — open to relocation.</p>
+    </div>
+  </div>
+
+
+
+</div>
+
+<footer>
+  <span class="fcopy">&copy; 2026 Sirong Zhao</span>
+  <span class="fname">Sirong Zhao — Product Designer</span>
+  <span style="font-size:12px;color:var(--warm-mid)">zhsirong@umich.edu</span>
+</footer>
+
+<script>
+// scroll reveal
+const obs = new IntersectionObserver(entries => {
+  entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); obs.unobserve(e.target); } });
+}, { threshold: .08 });
+document.querySelectorAll('.reveal').forEach(el => obs.observe(el));
+
+// copy email
+function copyEmail() {
+  navigator.clipboard.writeText('zhsirong@umich.edu').then(() => {
+    document.getElementById('emailLabel').textContent = 'Copied!';
+    document.getElementById('copyIcon').textContent = '✓';
+    document.getElementById('emailCard').style.background = 'var(--ink)';
+    document.getElementById('emailCard').style.color = 'var(--paper)';
+    setTimeout(() => {
+      document.getElementById('emailLabel').textContent = 'Email — click to copy';
+      document.getElementById('copyIcon').textContent = '⎘';
+      document.getElementById('emailCard').style.background = '';
+      document.getElementById('emailCard').style.color = '';
+    }, 2000);
+  });
+}
+
+// form submit
+function handleSubmit() {
+  

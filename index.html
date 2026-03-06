@@ -1,0 +1,1163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sirong Zhao — Product Designer</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --ink: #111010;
+  --paper: #f2f0eb;
+  --warm-mid: #9e9a93;
+  --warm-light: #dedad3;
+  --accent: #c8502a;
+  --border: #e2dfd8;
+  --card-bg: #faf9f6;
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--paper);
+  color: var(--ink);
+  font-family: 'DM Sans', sans-serif;
+  font-weight: 300;
+  overflow-x: hidden;
+  cursor: none;
+}
+
+/* ── CUSTOM CURSOR ── */
+.cursor {
+  width: 10px; height: 10px;
+  background: var(--ink);
+  border-radius: 50%;
+  position: fixed;
+  pointer-events: none;
+  z-index: 9999;
+  transition: transform 0.15s ease, background 0.2s;
+  transform: translate(-50%, -50%);
+}
+.cursor-ring {
+  width: 36px; height: 36px;
+  border: 1px solid var(--ink);
+  border-radius: 50%;
+  position: fixed;
+  pointer-events: none;
+  z-index: 9998;
+  transition: transform 0.35s ease, width 0.25s, height 0.25s, opacity 0.25s;
+  transform: translate(-50%, -50%);
+  opacity: 0.4;
+}
+body:has(a:hover) .cursor-ring,
+body:has(.card:hover) .cursor-ring {
+  width: 56px; height: 56px; opacity: 0.15;
+}
+
+/* ── NAV ── */
+nav {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  z-index: 100;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 22px 48px;
+  background: var(--paper);
+  border-bottom: 1px solid var(--border);
+}
+.nav-logo {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 17px;
+  font-weight: 400;
+  letter-spacing: 0.02em;
+  text-decoration: none;
+  color: var(--ink);
+}
+.nav-links {
+  display: flex;
+  gap: 32px;
+  list-style: none;
+}
+.nav-links a {
+  font-size: 11px;
+  font-weight: 400;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ink);
+  text-decoration: none;
+  opacity: 0.55;
+  transition: opacity 0.2s;
+}
+.nav-links a:hover { opacity: 1; }
+
+/* ── HERO ── */
+.hero {
+  min-height: 100vh;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  padding: 0 48px;
+  padding-top: 100px;
+  gap: 0;
+  position: relative;
+}
+
+.hero-left {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding-right: 60px;
+  padding-bottom: 80px;
+}
+
+.hero-eyebrow {
+  font-size: 10px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--warm-mid);
+  margin-bottom: 28px;
+  opacity: 0;
+  animation: fadeUp 0.8s ease 0.1s forwards;
+}
+
+.hero-name {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: clamp(52px, 7vw, 88px);
+  font-weight: 300;
+  line-height: 0.95;
+  letter-spacing: -0.02em;
+  margin-bottom: 32px;
+  opacity: 0;
+  animation: fadeUp 0.9s ease 0.25s forwards;
+}
+.hero-name em {
+  font-style: italic;
+  font-weight: 300;
+  color: var(--accent);
+}
+
+.hero-bio {
+  font-size: 14px;
+  line-height: 1.75;
+  color: #555;
+  max-width: 420px;
+  margin-bottom: 40px;
+  opacity: 0;
+  animation: fadeUp 0.9s ease 0.4s forwards;
+}
+
+.hero-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 44px;
+  opacity: 0;
+  animation: fadeUp 0.9s ease 0.5s forwards;
+}
+.hero-tag {
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding: 6px 14px;
+  border: 1px solid var(--border);
+  border-radius: 100px;
+  color: #555;
+  background: transparent;
+  transition: border-color 0.2s, color 0.2s;
+  position: relative;
+  cursor: default;
+}
+.hero-tag:hover { border-color: var(--ink); color: var(--ink); }
+.hero-tag .tag-tip {
+  position: absolute;
+  bottom: calc(100% + 10px);
+  left: 50%;
+  transform: translateX(-50%) translateY(4px);
+  background: var(--ink);
+  color: var(--paper);
+  font-size: 11px;
+  font-weight: 300;
+  letter-spacing: 0.01em;
+  text-transform: none;
+  white-space: nowrap;
+  padding: 7px 14px;
+  border-radius: 4px;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.2s, transform 0.2s;
+  z-index: 10;
+}
+.hero-tag .tag-tip::after {
+  content: '';
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  border: 5px solid transparent;
+  border-top-color: var(--ink);
+}
+.hero-tag:hover .tag-tip {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+
+.hero-cta {
+  display: flex;
+  gap: 20px;
+  align-items: center;
+  opacity: 0;
+  animation: fadeUp 0.9s ease 0.6s forwards;
+}
+.btn-primary {
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding: 13px 28px;
+  background: var(--ink);
+  color: var(--paper);
+  text-decoration: none;
+  border-radius: 2px;
+  transition: background 0.2s, transform 0.2s;
+}
+.btn-primary:hover { background: var(--accent); transform: translateY(-1px); }
+.btn-ghost {
+  font-size: 11px;
+  font-weight: 400;
+  letter-spacing: 0.08em;
+  color: var(--ink);
+  text-decoration: none;
+  border-bottom: 1px solid var(--ink);
+  padding-bottom: 2px;
+  opacity: 0.6;
+  transition: opacity 0.2s;
+}
+.btn-ghost:hover { opacity: 1; }
+
+/* ── HERO RIGHT (stats panel) ── */
+.hero-right {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  padding-bottom: 80px;
+  padding-left: 60px;
+  border-left: 1px solid var(--border);
+  opacity: 0;
+  animation: fadeUp 1s ease 0.7s forwards;
+}
+
+.process-flow {
+  margin-bottom: 48px;
+}
+.process-label {
+  font-size: 9px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--warm-mid);
+  margin-bottom: 16px;
+  display: block;
+}
+.process-steps {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+.process-step {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--border);
+  font-size: 12px;
+  color: #444;
+  letter-spacing: 0.03em;
+}
+.process-step:last-child { border-bottom: none; }
+.step-num {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 18px;
+  color: var(--warm-light);
+  width: 24px;
+  flex-shrink: 0;
+  line-height: 1;
+}
+
+.impact-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 0;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  overflow: hidden;
+}
+.impact-cell {
+  padding: 20px 16px;
+  border-right: 1px solid var(--border);
+  text-align: center;
+}
+.impact-cell:last-child { border-right: none; }
+.impact-num {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 34px;
+  font-weight: 300;
+  letter-spacing: -0.02em;
+  color: var(--ink);
+  line-height: 1;
+  margin-bottom: 6px;
+}
+.impact-desc {
+  font-size: 9.5px;
+  color: var(--warm-mid);
+  line-height: 1.5;
+  letter-spacing: 0.04em;
+}
+
+/* ── HORIZONTAL TICKER ── */
+.ticker-wrap {
+  overflow: hidden;
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+  padding: 14px 0;
+  white-space: nowrap;
+  background: var(--paper);
+}
+.ticker {
+  display: inline-flex;
+  animation: ticker 28s linear infinite;
+}
+.ticker-inner {
+  display: flex;
+  gap: 0;
+}
+.ticker-item {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 15px;
+  font-style: italic;
+  font-weight: 300;
+  color: var(--warm-mid);
+  padding: 0 32px;
+  letter-spacing: 0.03em;
+}
+.ticker-dot {
+  color: var(--accent);
+  font-style: normal;
+}
+@keyframes ticker {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+/* ── SECTION LABEL ── */
+.section-label {
+  font-size: 9px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--warm-mid);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 40px;
+}
+.section-label::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--border);
+}
+
+/* ── EXPERIENCE SECTION ── */
+.experience-section {
+  padding: 80px 48px;
+  display: grid;
+  grid-template-columns: 280px 1fr;
+  gap: 60px;
+  border-bottom: 1px solid var(--border);
+}
+.exp-sidebar {
+  padding-top: 4px;
+}
+.exp-sidebar-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 36px;
+  font-weight: 300;
+  line-height: 1.1;
+  margin-bottom: 16px;
+  letter-spacing: -0.01em;
+}
+.exp-sidebar-sub {
+  font-size: 12px;
+  color: var(--warm-mid);
+  line-height: 1.7;
+}
+.exp-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+.exp-item {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: baseline;
+  padding: 20px 0;
+  border-bottom: 1px solid var(--border);
+  gap: 20px;
+  transition: padding-left 0.2s;
+}
+.exp-item:last-child { border-bottom: none; }
+.exp-item:hover { padding-left: 8px; }
+.exp-role {
+  font-size: 13px;
+  font-weight: 500;
+  margin-bottom: 4px;
+}
+.exp-company {
+  font-size: 12px;
+  color: var(--warm-mid);
+}
+.exp-company em {
+  font-style: normal;
+  color: var(--accent);
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  margin-left: 8px;
+}
+.exp-date {
+  font-size: 11px;
+  color: var(--warm-mid);
+  white-space: nowrap;
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 14px;
+}
+
+/* ── WORK SECTION ── */
+.work-section {
+  padding: 80px 48px;
+}
+
+.work-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2px;
+}
+
+/* FEATURED */
+.card {
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  position: relative;
+  overflow: hidden;
+  transition: border-color 0.3s, box-shadow 0.3s;
+  cursor: none;
+}
+.card:hover {
+  border-color: var(--ink);
+  box-shadow: 5px 5px 0 var(--ink);
+  z-index: 2;
+}
+.card::after {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+  background: var(--accent);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.35s ease;
+}
+.card:hover::after { transform: scaleX(1); }
+
+.card-inner {
+  padding: 36px;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.card.featured {
+  grid-column: 1 / -1;
+}
+.card.featured .card-inner {
+  display: grid;
+  grid-template-columns: 1fr 240px;
+  gap: 0;
+  padding: 0;
+}
+.featured-main {
+  padding: 40px;
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+}
+.featured-side {
+  padding: 40px 32px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  background: #f5f3ef;
+}
+
+.featured-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  background: var(--ink);
+  color: var(--paper);
+  padding: 5px 12px;
+  border-radius: 2px;
+  margin-bottom: 20px;
+  width: fit-content;
+}
+.featured-badge::before {
+  content: '';
+  width: 5px; height: 5px;
+  background: var(--accent);
+  border-radius: 50%;
+}
+
+.card-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 18px;
+}
+.card-tag {
+  font-size: 9.5px;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  background: var(--warm-light);
+  color: #666;
+  padding: 4px 10px;
+  border-radius: 2px;
+}
+
+.card-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 28px;
+  font-weight: 300;
+  line-height: 1.15;
+  letter-spacing: -0.01em;
+  margin-bottom: 10px;
+}
+.card.featured .card-title { font-size: 34px; }
+
+.card-desc {
+  font-size: 12.5px;
+  color: #666;
+  line-height: 1.7;
+  margin-bottom: 24px;
+  font-weight: 300;
+}
+
+.card-divider {
+  height: 1px;
+  background: var(--border);
+  margin-bottom: 20px;
+}
+
+.process-pills {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  flex-wrap: wrap;
+  margin-bottom: 24px;
+}
+.process-pill-label {
+  font-size: 9px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--warm-mid);
+  margin-right: 4px;
+}
+.pill {
+  font-size: 10px;
+  font-weight: 400;
+  padding: 4px 10px;
+  border: 1px solid var(--border);
+  border-radius: 100px;
+  color: #555;
+  transition: all 0.25s;
+}
+.card:hover .pill { background: var(--ink); color: var(--paper); border-color: var(--ink); }
+.pill-arrow { font-size: 9px; color: var(--warm-mid); }
+
+.stats-row {
+  display: flex;
+  gap: 0;
+  margin-bottom: 28px;
+}
+.stat-block {
+  flex: 1;
+  padding: 12px 0;
+  border-left: 1px solid var(--border);
+  padding-left: 14px;
+}
+.stat-block:first-child { border-left: none; padding-left: 0; }
+.stat-n {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 26px;
+  font-weight: 300;
+  letter-spacing: -0.02em;
+  line-height: 1;
+  margin-bottom: 4px;
+}
+.stat-d {
+  font-size: 9.5px;
+  color: var(--warm-mid);
+  line-height: 1.4;
+}
+
+.card-meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: auto;
+}
+.card-meta-info {
+  display: flex;
+  gap: 20px;
+}
+.meta-field {
+  font-size: 9.5px;
+  color: var(--warm-mid);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+.meta-field span {
+  display: block;
+  color: var(--ink);
+  font-weight: 500;
+  font-size: 11px;
+  text-transform: none;
+  letter-spacing: 0;
+  margin-top: 3px;
+}
+.view-link {
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--ink);
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  border-bottom: 1px solid currentColor;
+  padding-bottom: 1px;
+  transition: gap 0.2s, color 0.2s;
+}
+.card:hover .view-link { gap: 10px; color: var(--accent); }
+
+/* side panel */
+.side-label {
+  font-size: 9px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--warm-mid);
+  margin-bottom: 12px;
+  display: block;
+}
+.side-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.side-list li {
+  font-size: 11.5px;
+  color: #555;
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  line-height: 1.4;
+}
+.side-list li::before {
+  content: '';
+  width: 3px; height: 3px;
+  background: var(--accent);
+  border-radius: 50%;
+  margin-top: 6px;
+  flex-shrink: 0;
+}
+
+/* smaller cards */
+.card-sm .card-inner { padding: 28px; }
+.card-sm .card-title { font-size: 22px; }
+
+/* ── FOOTER ── */
+footer {
+  border-top: 1px solid var(--border);
+  padding: 48px;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: end;
+  gap: 40px;
+}
+.footer-name {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 48px;
+  font-weight: 300;
+  letter-spacing: -0.02em;
+  line-height: 1;
+  margin-bottom: 12px;
+}
+.footer-sub {
+  font-size: 12px;
+  color: var(--warm-mid);
+}
+.footer-links {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  text-align: right;
+}
+.footer-links a {
+  font-size: 11px;
+  color: var(--ink);
+  text-decoration: none;
+  opacity: 0.5;
+  letter-spacing: 0.06em;
+  transition: opacity 0.2s;
+}
+.footer-links a:hover { opacity: 1; }
+
+/* ── ANIMATIONS ── */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.reveal {
+  opacity: 0;
+  transform: translateY(24px);
+  transition: opacity 0.7s ease, transform 0.7s ease;
+}
+.reveal.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* ── RESPONSIVE ── */
+@media (max-width: 768px) {
+  nav { padding: 18px 24px; }
+  .hero { grid-template-columns: 1fr; padding: 100px 24px 60px; }
+  .hero-right { border-left: none; border-top: 1px solid var(--border); padding-left: 0; padding-top: 40px; margin-top: 40px; }
+  .experience-section { grid-template-columns: 1fr; padding: 60px 24px; }
+  .work-section { padding: 60px 24px; }
+  .work-grid { grid-template-columns: 1fr; }
+  .card.featured .card-inner { grid-template-columns: 1fr; }
+  .featured-side { border-top: 1px solid var(--border); }
+  footer { grid-template-columns: 1fr; padding: 40px 24px; }
+  .footer-links { text-align: left; }
+  .about-grid { grid-template-columns: 1fr !important; padding: 56px 24px !important; gap: 24px !important; }
+  .about-grid > div:first-child { position: static !important; }
+  .about-grid [style*="grid-template-columns: repeat(3"] { grid-template-columns: 1fr !important; }
+}
+.footer-links a { position: relative; }
+#footerEmail .copy-tip {
+  position: absolute;
+  bottom: calc(100% + 8px);
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--ink);
+  color: var(--paper);
+  font-size: 10px;
+  letter-spacing: .08em;
+  white-space: nowrap;
+  padding: 5px 10px;
+  border-radius: 3px;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity .2s;
+}
+#footerEmail:hover .copy-tip { opacity: 1; }
+</style>
+</head>
+<body>
+
+<div class="cursor" id="cursor"></div>
+<div class="cursor-ring" id="cursorRing"></div>
+
+<!-- NAV -->
+<nav>
+  <a href="#" class="nav-logo">Sirong Zhao</a>
+  <ul class="nav-links">
+    <li><a href="#work">Work</a></li>
+    <li><a href="#about">About</a></li>
+    <li><a href="contact.html">Contact</a></li>
+  </ul>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-left">
+    <p class="hero-eyebrow">Product Designer · Ann Arbor, MI</p>
+    <h1 class="hero-name">
+      Sirong<br>
+      <em>Zhao</em>
+    </h1>
+    <p class="hero-bio">
+      I design data-informed digital products that improve how people decide, act, and engage — working at the intersection of product design, analytics, and user behavior.
+    </p>
+    <div class="hero-tags">
+      <span class="hero-tag">Product Strategy<span class="tag-tip">Defining product direction through user needs & business goals</span></span>
+      <span class="hero-tag">Behavioral UX<span class="tag-tip">Designing for how people actually think and decide</span></span>
+      <span class="hero-tag">Growth & Experimentation<span class="tag-tip">A/B testing, metrics, and iteration to drive adoption</span></span>
+      <span class="hero-tag">Data-informed Design<span class="tag-tip">Using research & analytics to validate every design choice</span></span>
+    </div>
+    <div class="hero-cta">
+      <a href="#work" class="btn-primary">View Work</a>
+    </div>
+  </div>
+
+  <div class="hero-right">
+    <div class="process-flow">
+      <span class="process-label">Design Philosophy</span>
+      <div class="process-steps">
+        <div class="process-step"><span class="step-num">01</span> Observe behavior</div>
+        <div class="process-step"><span class="step-num">02</span> Identify friction</div>
+        <div class="process-step"><span class="step-num">03</span> Test solutions</div>
+        <div class="process-step"><span class="step-num">04</span> Measure outcomes</div>
+        <div class="process-step"><span class="step-num">05</span> Refine continuously</div>
+      </div>
+    </div>
+    <div>
+      <span class="process-label" style="margin-bottom:12px;display:block;">Validated Product Impact</span>
+      <div class="impact-grid">
+        <div class="impact-cell">
+          <div class="impact-num">32%</div>
+          <div class="impact-desc">Reduced interaction steps</div>
+        </div>
+        <div class="impact-cell">
+          <div class="impact-num">24%</div>
+          <div class="impact-desc">Faster task completion</div>
+        </div>
+        <div class="impact-cell">
+          <div class="impact-num">15%</div>
+          <div class="impact-desc">Feature adoption lift</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ABOUT -->
+<section id="about" style="border-top:1px solid var(--border);border-bottom:1px solid var(--border);background:var(--card);">
+  <div style="display:grid;grid-template-columns:220px 1fr;padding:72px 64px;gap:80px;max-width:1400px;margin:0 auto;" class="about-grid">
+    <div style="font-size:9px;letter-spacing:.22em;text-transform:uppercase;color:var(--warm-mid);padding-top:6px;position:sticky;top:88px;height:fit-content;">About</div>
+    <div>
+      <p style="font-family:'Cormorant Garamond',serif;font-size:clamp(18px,2vw,24px);font-weight:300;line-height:1.6;letter-spacing:-.01em;margin-bottom:20px;">Coming from <em style="font-style:italic;color:var(--accent);">landscape architecture</em>, I was trained to design for complex systems, human behavior, and long-term impact.</p>
+      <p style="font-size:13px;color:#555;line-height:1.9;font-weight:300;max-width:640px;margin-bottom:12px;">That way of thinking continues to shape how I approach digital products — treating them as decision environments rather than static interfaces. I rely heavily on user research to inform both structure and aesthetics, and I'm intentional about how visual design and usability work together to influence understanding, trust, and action.</p>
+      <p style="font-size:13px;color:#555;line-height:1.9;font-weight:300;max-width:640px;margin-bottom:40px;">For me, good design is not only usable or visually refined — it creates measurable business value by improving how users engage with, adopt, and rely on a product.</p>
+
+      <p style="font-size:9px;letter-spacing:.22em;text-transform:uppercase;color:var(--warm-mid);margin-bottom:16px;display:flex;align-items:center;gap:12px;">Education <span style="flex:1;height:1px;background:var(--border);display:inline-block;"></span></p>
+      <div style="display:flex;flex-direction:column;gap:2px;margin-bottom:28px;">
+        <div style="padding:22px 28px;background:var(--paper);border:1px solid var(--border);">
+          <div style="font-family:'Cormorant Garamond',serif;font-size:19px;font-weight:400;margin-bottom:4px;line-height:1.2;">Master of Science in Information</div>
+          <div style="font-size:11px;letter-spacing:.08em;color:var(--accent);text-transform:uppercase;margin-bottom:10px;font-weight:500;">University of Michigan, Ann Arbor</div>
+          <div style="font-size:12px;color:#666;line-height:1.75;font-weight:300;">Interdisciplinary training in UX, data analysis, programming, and business analytics. Coursework includes UX Foundations, Accessibility Research, User Research &amp; Evaluation, AR/VR Game Design, Business Strategy, Interactive Application Development, and Probability. Completed Business Analytics coursework at Ross School of Business.</div>
+          <span style="display:inline-flex;align-items:center;gap:6px;font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--warm-mid);margin-top:12px;">MSI · School of Information</span>
+        </div>
+        <div style="padding:22px 28px;background:var(--paper);border:1px solid var(--border);">
+          <div style="font-family:'Cormorant Garamond',serif;font-size:19px;font-weight:400;margin-bottom:4px;line-height:1.2;">Bachelor of Engineering in Landscape Architecture</div>
+          <div style="font-size:11px;letter-spacing:.08em;color:var(--accent);text-transform:uppercase;margin-bottom:10px;font-weight:500;">Beijing Forestry University</div>
+          <div style="font-size:12px;color:#666;line-height:1.75;font-weight:300;">Representative coursework in Management, Design Fundamentals, Engineering Drawing, and Introduction to Programming. Served as Class President for four years. Member of the Student Union Digital Media Department.</div>
+          <span style="display:inline-flex;align-items:center;gap:6px;font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--warm-mid);margin-top:12px;">BE · Landscape Architecture</span>
+        </div>
+      </div>
+
+      <p style="font-size:9px;letter-spacing:.22em;text-transform:uppercase;color:var(--warm-mid);margin-bottom:16px;display:flex;align-items:center;gap:12px;">Additional Programs <span style="flex:1;height:1px;background:var(--border);display:inline-block;"></span></p>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:2px;">
+        <div style="padding:20px 24px;border:1px solid var(--border);background:var(--paper);">
+          <div style="font-family:'Cormorant Garamond',serif;font-size:16px;font-weight:400;margin-bottom:5px;">Ross School of Business</div>
+          <div style="font-size:12px;color:#666;line-height:1.6;font-weight:300;">University of Michigan — Master of Business Analytics · Currently on gap year</div>
+        </div>
+        <div style="padding:20px 24px;border:1px solid var(--border);background:var(--paper);">
+          <div style="font-family:'Cormorant Garamond',serif;font-size:16px;font-weight:400;margin-bottom:5px;">SCAD</div>
+          <div style="font-size:12px;color:#666;line-height:1.6;font-weight:300;">Savannah College of Art and Design — UX Design and Research Foundation Course</div>
+        </div>
+        <div style="padding:20px 24px;border:1px solid var(--border);background:var(--paper);">
+          <div style="font-family:'Cormorant Garamond',serif;font-size:16px;font-weight:400;margin-bottom:5px;">UC Berkeley</div>
+          <div style="font-size:12px;color:#666;line-height:1.6;font-weight:300;">University of California, Berkeley — Media Foundation Summer School</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TICKER -->
+<div class="ticker-wrap">
+  <div class="ticker">
+    <div class="ticker-inner">
+      <span class="ticker-item">Product Strategy <span class="ticker-dot">✦</span></span>
+      <span class="ticker-item">Behavioral UX <span class="ticker-dot">✦</span></span>
+      <span class="ticker-item">Growth & Experimentation <span class="ticker-dot">✦</span></span>
+      <span class="ticker-item">Data-informed Design <span class="ticker-dot">✦</span></span>
+      <span class="ticker-item">Figma · FigJam · Python <span class="ticker-dot">✦</span></span>
+      <span class="ticker-item">Information Science · Business Analytics <span class="ticker-dot">✦</span></span>
+      <span class="ticker-item">University of Michigan <span class="ticker-dot">✦</span></span>
+      <span class="ticker-item">Hypothesis-driven Iteration <span class="ticker-dot">✦</span></span>
+    </div>
+    <div class="ticker-inner" aria-hidden="true">
+      <span class="ticker-item">Product Strategy <span class="ticker-dot">✦</span></span>
+      <span class="ticker-item">Behavioral UX <span class="ticker-dot">✦</span></span>
+      <span class="ticker-item">Growth & Experimentation <span class="ticker-dot">✦</span></span>
+      <span class="ticker-item">Data-informed Design <span class="ticker-dot">✦</span></span>
+      <span class="ticker-item">Figma · FigJam · Python <span class="ticker-dot">✦</span></span>
+      <span class="ticker-item">Information Science · Business Analytics <span class="ticker-dot">✦</span></span>
+      <span class="ticker-item">University of Michigan <span class="ticker-dot">✦</span></span>
+      <span class="ticker-item">Hypothesis-driven Iteration <span class="ticker-dot">✦</span></span>
+    </div>
+  </div>
+</div>
+
+<!-- EXPERIENCE -->
+<section class="experience-section reveal" id="experience">
+  <div class="exp-sidebar">
+    <p class="section-label" style="margin-bottom:24px;">Experience</p>
+    <h2 class="exp-sidebar-title">Selected<br><em style="font-style:italic; color:var(--accent);">Experience</em></h2>
+    <p class="exp-sidebar-sub">End-to-end designer and researcher across fintech, health tech, and AI products.</p>
+  </div>
+  <div class="exp-list">
+    <div class="exp-item">
+      <div>
+        <div class="exp-role">UX Developer · Product Designer</div>
+        <div class="exp-company">Bank of America App Redesign — Independent Project <em>Featured</em></div>
+      </div>
+      <div class="exp-date">Dec 2025 – Jan 2026</div>
+    </div>
+    <div class="exp-item">
+      <div>
+        <div class="exp-role">Lead Product Designer</div>
+        <div class="exp-company">Business+Tech — Michigan Ross <em>Top 3 Prize</em></div>
+      </div>
+      <div class="exp-date">Oct – Dec 2025</div>
+    </div>
+    <div class="exp-item">
+      <div>
+        <div class="exp-role">Product & Data Analytics Intern</div>
+        <div class="exp-company">Articares Pte. Ltd. — Health Robotics</div>
+      </div>
+      <div class="exp-date">Feb – Aug 2025</div>
+    </div>
+    <div class="exp-item">
+      <div>
+        <div class="exp-role">UX Research Consultant</div>
+        <div class="exp-company">Initium.AI — AI Software</div>
+      </div>
+      <div class="exp-date">Sep – Nov 2024</div>
+    </div>
+    <div class="exp-item">
+      <div>
+        <div class="exp-role">Project Manager</div>
+        <div class="exp-company">Lanqi Architectural Design Consulting</div>
+      </div>
+      <div class="exp-date">2021 – 2022</div>
+    </div>
+  </div>
+</section>
+
+<!-- WORK -->
+<section class="work-section" id="work">
+  <p class="section-label reveal">Selected Work</p>
+
+  <div class="work-grid">
+
+    <!-- FEATURED -->
+    <div class="card featured reveal">
+      <div class="card-inner">
+        <div class="featured-main">
+          <div class="featured-badge">Featured Case Study</div>
+          <div class="card-tags">
+            <span class="card-tag">UIUX</span>
+            <span class="card-tag">Financial App</span>
+            <span class="card-tag">Behavioral UX</span>
+            <span class="card-tag">Data Organization</span>
+          </div>
+          <h3 class="card-title">Bank of America —<br><em style="font-style:italic;">Faster decisions, clearer money moves</em></h3>
+          <p class="card-desc">Evaluated and redesigned core banking workflows across transaction review, product discovery, and goal creation — using research to expose three systemic UX gaps driving user confusion and low decision confidence.</p>
+          <div class="card-divider"></div>
+          <div class="process-pills">
+            <span class="process-pill-label">Process</span>
+            <span class="pill">Research</span><span class="pill-arrow">→</span>
+            <span class="pill">Audit</span><span class="pill-arrow">→</span>
+            <span class="pill">Ideation</span><span class="pill-arrow">→</span>
+            <span class="pill">Prototype</span><span class="pill-arrow">→</span>
+            <span class="pill">Testing</span>
+          </div>
+          <div class="stats-row">
+            <div class="stat-block"><div class="stat-n">32%</div><div class="stat-d">Reduced interaction steps</div></div>
+            <div class="stat-block"><div class="stat-n">24%</div><div class="stat-d">Faster task completion</div></div>
+            <div class="stat-block"><div class="stat-n">15%</div><div class="stat-d">Feature adoption lift</div></div>
+            <div class="stat-block"><div class="stat-n">50+</div><div class="stat-d">Research participants</div></div>
+          </div>
+          <div class="card-meta">
+            <div class="card-meta-info">
+              <div class="meta-field">Role<span>UX Designer & Researcher</span></div>
+              <div class="meta-field">Duration<span>3 weeks</span></div>
+              <div class="meta-field">Tools<span>Figma · FigJam · Python</span></div>
+            </div>
+            <a href="bofa-casestudy.html" class="view-link">View case study →</a>
+          </div>
+        </div>
+        <div class="featured-side">
+          <div>
+            <span class="side-label">Research Methods</span>
+            <ul class="side-list">
+              <li>50 survey participants</li>
+              <li>6 stakeholder interviews</li>
+              <li>8 competitive comparisons</li>
+              <li>6 card sorting sessions</li>
+              <li>Python data analysis</li>
+            </ul>
+          </div>
+          <div style="margin-top:32px;">
+            <span class="side-label">Pain Points Solved</span>
+            <ul class="side-list">
+              <li>Fragmented financial context</li>
+              <li>Marketing-first product pages</li>
+              <li>Goals without decision support</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CalmER -->
+    <div class="card card-sm reveal">
+      <div class="card-inner">
+        <div class="card-tags">
+          <span class="card-tag">Business Analysis</span>
+          <span class="card-tag">UIUX</span>
+          <span class="card-tag">AI Chatbot</span>
+        </div>
+        <h3 class="card-title">CalmER</h3>
+        <p class="card-desc">End-to-end product exploration — from market analysis through interactive prototyping — improving financial decision-making and reducing cognitive load in emergency care settings.</p>
+        <div class="card-divider"></div>
+        <div class="process-pills">
+          <span class="process-pill-label">Process</span>
+          <span class="pill">Market Analysis</span><span class="pill-arrow">→</span>
+          <span class="pill">Research</span><span class="pill-arrow">→</span>
+          <span class="pill">Prototype</span>
+        </div>
+        <div class="card-meta" style="margin-top:auto;">
+          <div class="meta-field">Focus<span>Cognitive load reduction</span></div>
+          <a href="calmer-casestudy.html" class="view-link">View →</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Urban Health -->
+    <div class="card card-sm reveal">
+      <div class="card-inner">
+        <div class="card-tags">
+          <span class="card-tag">ArcGIS</span>
+          <span class="card-tag">Data Analysis</span>
+          <span class="card-tag">CAD</span>
+        </div>
+        <h3 class="card-title">Urban Health Units</h3>
+        <p class="card-desc">A GIS-driven urban health framework translating spatial data into livable green infrastructure, bridging behavioral science and city planning.</p>
+        <div class="card-divider"></div>
+        <div class="process-pills">
+          <span class="process-pill-label">Process</span>
+          <span class="pill">Spatial Analysis</span><span class="pill-arrow">→</span>
+          <span class="pill">Framework</span><span class="pill-arrow">→</span>
+          <span class="pill">Design</span>
+        </div>
+        <div class="card-meta" style="margin-top:auto;">
+          <div class="meta-field">Focus<span>Data → Infrastructure</span></div>
+          <a href="urban-casestudy.html" class="view-link">View →</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- AWS CID Redesign -->
+    <div class="card card-sm reveal">
+      <div class="card-inner">
+        <div class="card-tags">
+          <span class="card-tag">UX Audit</span>
+          <span class="card-tag">FinOps</span>
+          <span class="card-tag">Data Viz</span>
+          <span class="card-tag">System Design</span>
+        </div>
+        <h3 class="card-title">AWS CID Redesign —<br><em style="font-style:italic;">From data overload to decision-driven</em></h3>
+        <p class="card-desc">Deep audit of AWS Cloud Intelligence Dashboards — identifying 8 systemic UX failures across real screenshots, then redesigning the IA, color semantics, and interface for FinOps teams.</p>
+        <div class="card-divider"></div>
+        <div class="process-pills">
+          <span class="process-pill-label">Process</span>
+          <span class="pill">Interface Audit</span><span class="pill-arrow">→</span>
+          <span class="pill">IA Redesign</span><span class="pill-arrow">→</span>
+          <span class="pill">Prototype</span>
+        </div>
+        <div class="card-meta" style="margin-top:auto;">
+          <div class="meta-field">Focus<span>IA · Color Semantics · Role-based Views</span></div>
+          <a href="aws-cid-casestudy.html" class="view-link">View case study →</a>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer class="reveal">
+  <div>
+    <div class="footer-name">Let's<br><em style="font-style:italic; color:var(--accent);">Connect</em></div>
+    <p class="footer-sub">Open to full-time product design roles</p>
+    <div style="margin-top:12px;display:flex;flex-direction:column;gap:4px;">
+      <a href="mailto:zhsirong@umich.edu" style="font-size:13px;color:var(--ink);text-decoration:none;opacity:.6;transition:opacity .2s;" onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=.6">zhsirong@umich.edu</a>
+    </div>
+  </div>
+  <div class="footer-links">
+    <a href="#" id="footerEmail" onclick="copyFooterEmail(event)">Email<span class="copy-tip" id="footerTip">Click to copy</span></a>
+    <a href="https://www.linkedin.com/in/sirong-zhao/" target="_blank">LinkedIn</a>
+    <a href="contact.html">Contact</a>
+    <a href="about.html">About</a>
+  </div>
+</footer>
+
+<script>
+// cursor
+const cursor = document.getElementById('cursor');
+const ring = document.getElementById('cursorRing');
+let mx = 0, my = 0, rx = 0, ry = 0;
+document.addEventListener('mousemove', e => { mx = e.clientX; my = e.clientY; });
+function animCursor() {
+  cursor.style.left = mx + 'px'; cursor.style.top = my + 'px';
+  rx += (mx - rx) * 0.12; ry += (my - ry) * 0.12;
+  ring.style.left = rx + 'px'; ring.style.top = ry + 'px';
+  requestAnimationFrame(animCursor);
+}
+animCursor();
+
+// copy footer email
+function copyFooterEmail(e) {
+  e.preventDefault();
+  navigator.clipboard.writeText('zhsirong@umich.edu').then(() => {
+    const tip = document.getElementById('footerTip');
+    tip.textContent = 'Copied!';
+    setTimeout(() => { tip.textContent = 'Click to copy'; }, 2000);
+  });
+}
+
+// scroll reveal
+const reveals = document.querySelectorAll('.reveal');
+const observer = new IntersectionObserver(entries => {
+  entries.forEach((e, i) => {
+    if (e.isIntersecting) {
+      setTimeout(() => e.target.classList.add('visible'), i * 60);
+      observer.unobserve(e.target);
+    }
+  });
+}, { threshold: 0.08 });
+reveals.forEach(el => observer.observe(el));
+</script>
+</body>
+</html>
