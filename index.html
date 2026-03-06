@@ -433,6 +433,63 @@ nav {
   font-family: 'Cormorant Garamond', serif;
   font-size: 14px;
 }
+.exp-item {
+  position: relative;
+}
+.exp-detail {
+  display: none;
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid var(--border);
+  grid-column: 1 / -1;
+}
+.exp-detail ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+.exp-detail ul li {
+  font-size: 12px;
+  color: var(--warm-mid);
+  line-height: 1.65;
+  padding-left: 14px;
+  position: relative;
+}
+.exp-detail ul li::before {
+  content: '—';
+  position: absolute;
+  left: 0;
+  color: var(--accent);
+  font-size: 10px;
+  top: 2px;
+}
+.exp-item:hover .exp-detail {
+  display: block;
+}
+.exp-item:hover {
+  padding-left: 8px;
+}
+.exp-linkedin {
+  margin-top: 20px;
+  padding-top: 20px;
+  border-top: 1px solid var(--border);
+  font-size: 12px;
+  color: var(--warm-mid);
+  grid-column: 1 / -1;
+}
+.exp-linkedin a {
+  color: var(--ink);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  font-weight: 500;
+  transition: color 0.15s;
+}
+.exp-linkedin a:hover {
+  color: var(--accent);
+}
 
 /* ── WORK SECTION ── */
 .work-section {
@@ -926,41 +983,93 @@ footer {
     <p class="exp-sidebar-sub">End-to-end designer and researcher across fintech, health tech, and AI products.</p>
   </div>
   <div class="exp-list">
+
     <div class="exp-item">
       <div>
         <div class="exp-role">UX Developer · Product Designer</div>
         <div class="exp-company">Bank of America App Redesign — Independent Project <em>Featured</em></div>
       </div>
       <div class="exp-date">Dec 2025 – Jan 2026</div>
+      <div class="exp-detail">
+        <ul>
+          <li>Led end-to-end interaction and product redesign of core mobile banking workflows, focusing on transactions, product exploration, and spending goals.</li>
+          <li>In early prototype usability testing, redesigned flows reduced required interaction steps by 32% and shortened task completion time by approximately 24%, improving clarity and decision efficiency.</li>
+          <li>Conducted UX research, usability testing, and market comparisons to identify friction in visualization patterns and information hierarchy across mobile banking experiences.</li>
+          <li>Created scalable wireframes and high-fidelity prototypes in Figma, translating research insights into optimized user flows grounded in HCI principles and modern design system practices.</li>
+          <li>Proposed lightweight A/B testing frameworks to validate interaction improvements and support data-informed product decisions.</li>
+          <li>Delivered structured presentations translating research findings into actionable product design strategy for cross-functional stakeholders.</li>
+        </ul>
+      </div>
     </div>
+
     <div class="exp-item">
       <div>
         <div class="exp-role">Lead Product Designer</div>
         <div class="exp-company">Business+Tech — Michigan Ross <em>Top 3 Prize</em></div>
       </div>
       <div class="exp-date">Oct – Dec 2025</div>
+      <div class="exp-detail">
+        <ul>
+          <li>Supported enterprise interaction design and product design research projects for e-commerce and platform experiences.</li>
+          <li>Facilitated ideation workshops, prototyping, usability testing, and collaborative research activities using Enterprise Design Thinking.</li>
+          <li>Synthesized UX research findings into scalable visualization, design systems, and optimized mobile experiences.</li>
+          <li>Improved cross-functional communication through structured presentations and research storytelling.</li>
+          <li>Advocated for accessible interaction design, improved user flows, and research-driven product innovation.</li>
+        </ul>
+      </div>
     </div>
+
     <div class="exp-item">
       <div>
         <div class="exp-role">Product & Data Analytics Intern</div>
         <div class="exp-company">Articares Pte. Ltd. — Health Robotics</div>
       </div>
       <div class="exp-date">Feb – Aug 2025</div>
+      <div class="exp-detail">
+        <ul>
+          <li>Monitored product KPIs using Google Analytics, Looker Studio, and visualization dashboards, increasing feature adoption by 15%.</li>
+          <li>Applied SQL, web technologies, and strong technical proficiency to support data-driven UX research and product design decisions.</li>
+          <li>Partnered with engineers and designers to align product innovation, interaction design, and user research insights.</li>
+          <li>Contributed to usability testing planning, A/B testing discussions, and stakeholder presentations improving communication across teams.</li>
+        </ul>
+      </div>
     </div>
+
     <div class="exp-item">
       <div>
         <div class="exp-role">UX Research Consultant</div>
         <div class="exp-company">Initium.AI — AI Software</div>
       </div>
       <div class="exp-date">Sep – Nov 2024</div>
+      <div class="exp-detail">
+        <ul>
+          <li>Planned and executed end-to-end UX research, including interviews, surveys, usability testing, and research projects for AI software.</li>
+          <li>Applied Human-Computer Interaction frameworks to evaluate interaction design and product design challenges.</li>
+          <li>Produced visualization artifacts, mockups, wireframes, and presentations supporting design systems and product strategy.</li>
+          <li>Translated research insights into scalable user flows, interaction models, and product innovation recommendations.</li>
+        </ul>
+      </div>
     </div>
+
     <div class="exp-item">
       <div>
         <div class="exp-role">Project Manager</div>
         <div class="exp-company">Lanqi Architectural Design Consulting</div>
       </div>
       <div class="exp-date">2021 – 2022</div>
+      <div class="exp-detail">
+        <ul>
+          <li>Conducted stakeholder interviews and structured research projects, transforming qualitative insights into measurable KPIs and visualization dashboards.</li>
+          <li>Strengthened cross-functional communication and technical delivery workflows through presentations and collaboration.</li>
+          <li>Influenced design decisions through data-driven storytelling and product innovation strategy alignment.</li>
+        </ul>
+      </div>
     </div>
+
+    <div class="exp-linkedin">
+      For more experience detail, view my <a href="https://www.linkedin.com/in/sirong-zhao/" target="_blank" rel="noopener">LinkedIn profile →</a>
+    </div>
+
   </div>
 </section>
 
@@ -1161,3 +1270,4 @@ reveals.forEach(el => observer.observe(el));
 </script>
 </body>
 </html>
+
