@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>AWS CID Redesign — Case Study</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&display=swap" rel="stylesheet">
 <link href="https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;500;600&family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,600;1,9..144,300&display=swap" rel="stylesheet">
 <style>
 :root{
@@ -272,22 +273,114 @@ footer{border-top:1px solid var(--rule);padding:32px 0}
   .proc{flex-direction:column}
   .ia-flow{flex-direction:column;gap:4px}
 }
+
+/* ── PORTFOLIO UNIFIED STYLES ── */
+:root {
+  --pf-ink:#111010; --pf-paper:#f2f0eb; --pf-accent:#c8502a;
+  --pf-border:#e2dfd8; --pf-card:#faf9f6; --pf-mid:#9e9a93;
+}
+.cursor{width:8px;height:8px;background:var(--pf-accent);border-radius:50%;position:fixed;pointer-events:none;z-index:9999;transform:translate(-50%,-50%);transition:transform .1s}
+.cursor-ring{width:32px;height:32px;border:1px solid var(--pf-ink);border-radius:50%;position:fixed;pointer-events:none;z-index:9998;transform:translate(-50%,-50%);opacity:.25;transition:width .3s,height .3s,opacity .3s}
+
+/* portfolio nav overlay */
+.pf-nav{
+  position:fixed;top:0;left:0;right:0;z-index:400;
+  display:flex;justify-content:space-between;align-items:center;
+  padding:20px 48px;
+  background:rgba(242,240,235,0.93);
+  backdrop-filter:blur(14px);
+  border-bottom:1px solid transparent;
+  transition:border-color .3s;
+  font-family:'DM Sans',sans-serif;
+}
+.pf-nav.scrolled{border-bottom-color:var(--pf-border)}
+.pf-nav-logo{font-family:'Cormorant Garamond',serif;font-size:17px;font-weight:400;text-decoration:none;color:var(--pf-ink)}
+.pf-nav-back{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--pf-ink);text-decoration:none;opacity:.5;display:flex;align-items:center;gap:7px;transition:opacity .2s}
+.pf-nav-back:hover{opacity:1}
+.pf-nav-links{display:flex;gap:28px;list-style:none}
+.pf-nav-links a{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--pf-ink);text-decoration:none;opacity:.5;transition:opacity .2s;font-family:'DM Sans',sans-serif}
+.pf-nav-links a:hover{opacity:1}
+
+/* disclaimer banner */
+.pf-disclaimer{
+  background:#f7f4ee;
+  border-top:1px solid var(--pf-border);
+  border-bottom:1px solid var(--pf-border);
+  padding:14px 48px;
+  display:flex;align-items:center;gap:12px;
+  font-family:'DM Sans',sans-serif;
+  font-size:12px;color:#6b6762;
+  letter-spacing:.01em;
+  line-height:1.6;
+}
+.pf-disclaimer-icon{font-size:14px;flex-shrink:0}
+.pf-disclaimer strong{color:var(--pf-ink);font-weight:500}
+
+/* next section */
+.pf-next-section{display:grid;grid-template-columns:1fr 1fr;gap:2px;margin-top:0}
+.pf-next-card{
+  padding:44px 48px;background:var(--pf-card);border-top:1px solid var(--pf-border);
+  text-decoration:none;color:var(--pf-ink);display:block;
+  transition:background .2s;position:relative;overflow:hidden;
+  font-family:'DM Sans',sans-serif;
+}
+.pf-next-card::after{content:'';position:absolute;bottom:0;left:0;right:0;height:2px;background:var(--pf-accent);transform:scaleX(0);transform-origin:left;transition:transform .3s ease}
+.pf-next-card:hover{background:#eceae4}
+.pf-next-card:hover::after{transform:scaleX(1)}
+.pf-next-label{font-size:9px;letter-spacing:.18em;text-transform:uppercase;color:var(--pf-mid);margin-bottom:14px}
+.pf-next-title{font-family:'Cormorant Garamond',serif;font-size:28px;font-weight:300;letter-spacing:-.01em;margin-bottom:8px;color:var(--pf-ink)}
+.pf-next-desc{font-size:12px;color:#777;line-height:1.7}
+.pf-next-arrow{margin-top:18px;font-size:20px;color:var(--pf-accent);transition:transform .2s}
+.pf-next-card:hover .pf-next-arrow{transform:translateX(5px)}
+
+/* portfolio footer */
+.pf-footer{
+  padding:44px 48px;display:flex;justify-content:space-between;align-items:center;
+  border-top:1px solid var(--pf-border);
+  font-family:'DM Sans',sans-serif;
+}
+.pf-footer-name{font-family:'Cormorant Garamond',serif;font-size:18px;font-weight:300;color:var(--pf-ink)}
+.pf-footer-copy{font-size:11px;color:var(--pf-mid)}
+
+/* push page content below fixed nav */
+body{padding-top:66px}
+
+@media(max-width:768px){
+  .pf-nav{padding:16px 20px}
+  .pf-nav-links{display:none}
+  .pf-disclaimer{padding:12px 20px;font-size:11px}
+  .pf-next-section{grid-template-columns:1fr}
+  .pf-next-card{padding:32px 24px}
+  .pf-footer{flex-direction:column;gap:10px;padding:32px 24px;text-align:center}
+}
+
 </style>
 </head>
 <body>
 
-<nav>
-  <div class="w nav-r">
-    <div class="nav-b">AWS CID Redesign — Case Study &nbsp;<span style="font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:400;color:var(--ink3);letter-spacing:.06em">📍 Shanghai</span></div>
-    <ul class="nav-l">
-      <li><a href="#research">01 Research</a></li>
-      <li><a href="#audit">02 Audit</a></li>
-      <li><a href="#ia">03 IA</a></li>
-      <li><a href="#redesign">04 Redesign</a></li>
-      <li><a href="#outcome">05 Outcome</a></li>
-    </ul>
-  </div>
+<div class="cursor" id="pf-cursor"></div>
+<div class="cursor-ring" id="pf-ring"></div>
+
+<nav class="pf-nav" id="pfNav">
+  <a href="index.html" class="pf-nav-back">← All work</a>
+  <a href="index.html" class="pf-nav-logo">Sirong Zhao</a>
+  <ul class="pf-nav-links">
+    <li><a href="#research">Research</a></li>
+    <li><a href="#audit">Audit</a></li>
+    <li><a href="#ia">IA</a></li>
+    <li><a href="#redesign">Redesign</a></li>
+    <li><a href="#outcome">Outcome</a></li>
+  </ul>
 </nav>
+
+<!-- Disclaimer -->
+<div class="pf-disclaimer">
+  <span class="pf-disclaimer-icon">ℹ️</span>
+  <span>
+    <strong>Independent research project.</strong>
+    All AWS CID interface screenshots used in this case study are sourced from publicly available AWS documentation, blog posts, and product demos online. This is a self-initiated UX audit and redesign — not affiliated with or commissioned by Amazon Web Services.
+  </span>
+</div>
 
 <!-- HERO -->
 <header class="hero">
@@ -587,172 +680,108 @@ footer{border-top:1px solid var(--rule);padding:32px 0}
     <div class="eye">04 · Visual Redesign · 视觉重设计</div>
     <h2 class="sh2">设计系统与<em>界面原型</em></h2>
     <div style="font-size:14px;color:var(--ink3);font-style:italic;margin-top:-8px;margin-bottom:24px;font-family:'Fraunces',serif;font-weight:300">Design System &amp; Interface Prototype</div>
-    <p class="sdesc">建立统一颜色语义系统与字体规范，完成 FinOps Dashboard 主界面完整重设计。以下内容为原创重设计，非 AWS 现有产品截图。</p>
+    <p class="sdesc">针对六个已识别问题，建立统一设计语言：克制的颜色语义系统、产品化字体层级、角色分层信息架构。以下为完整界面重设计原型。</p>
 
-    <!-- Design system changes -->
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:28px">
-      <div style="padding:18px;background:var(--surface);border:1px solid var(--rule);border-radius:10px">
-        <div style="font-size:10px;font-weight:700;color:var(--blue);text-transform:uppercase;letter-spacing:.08em;margin-bottom:10px">字体系统</div>
-        <div style="display:grid;grid-template-columns:1fr auto 1fr;gap:12px;font-size:12px;color:var(--ink2);align-items:center">
-          <div><div style="color:var(--red);font-size:10px;margin-bottom:3px">现有系统</div>QuickSight 默认字体<br>标题/正文/数字无层级</div>
-          <div style="color:var(--rule);font-size:18px">→</div>
-          <div><div style="color:var(--teal);font-size:10px;margin-bottom:3px">重设计</div>Inter（UI文字）<br>JetBrains Mono（所有数字）</div>
-        </div>
+    <!-- Design decisions: before/after -->
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--rule);border:1px solid var(--rule);border-radius:8px;overflow:hidden;margin-bottom:32px">
+      <div style="background:var(--surface);padding:18px 20px">
+        <div style="font-size:10px;font-weight:600;color:var(--ink3);text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px">Typography</div>
+        <div style="font-size:12px;color:var(--red);margin-bottom:4px">Before: QuickSight default, no scale</div>
+        <div style="font-size:12px;color:var(--teal)">After: Inter UI + JetBrains Mono for all numeric values, 5-level type scale</div>
       </div>
-      <div style="padding:18px;background:var(--surface);border:1px solid var(--rule);border-radius:10px">
-        <div style="font-size:10px;font-weight:700;color:var(--blue);text-transform:uppercase;letter-spacing:.08em;margin-bottom:10px">颜色语义</div>
-        <div style="display:grid;grid-template-columns:1fr auto 1fr;gap:12px;font-size:12px;color:var(--ink2);align-items:center">
-          <div><div style="color:var(--red);font-size:10px;margin-bottom:3px">现有系统</div>荧光绿/青/橙<br>同色多义·装饰性使用</div>
-          <div style="color:var(--rule);font-size:18px">→</div>
-          <div><div style="color:var(--teal);font-size:10px;margin-bottom:3px">重设计</div>蓝=正常 橙=预警<br>红=严重 绿=达成</div>
-        </div>
+      <div style="background:var(--surface);padding:18px 20px">
+        <div style="font-size:10px;font-weight:600;color:var(--ink3);text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px">Color Semantics</div>
+        <div style="font-size:12px;color:var(--red);margin-bottom:4px">Before: Decorative use, green = 3 meanings</div>
+        <div style="font-size:12px;color:var(--teal)">After: Blue normal · Amber warning · Red critical · Green met — strictly one meaning each</div>
+      </div>
+      <div style="background:var(--surface);padding:18px 20px">
+        <div style="font-size:10px;font-weight:600;color:var(--ink3);text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px">Information Architecture</div>
+        <div style="font-size:12px;color:var(--red);margin-bottom:4px">Before: 3 disconnected URLs, no shared filters</div>
+        <div style="font-size:12px;color:var(--teal)">After: Unified sidebar, global filter context, role-based progressive disclosure</div>
       </div>
     </div>
 
-    <!-- Color tokens -->
-    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:28px">
-      <div style="display:flex;align-items:center;gap:8px;padding:7px 12px;background:var(--surface);border:1px solid var(--rule);border-radius:6px"><div style="width:18px;height:18px;border-radius:3px;background:#3B82F6;flex-shrink:0"></div><div><div style="font-size:11px;font-weight:700">#3B82F6</div><div style="font-size:9px;color:var(--ink3)">正常 · 主要操作</div></div></div>
-      <div style="display:flex;align-items:center;gap:8px;padding:7px 12px;background:var(--surface);border:1px solid var(--rule);border-radius:6px"><div style="width:18px;height:18px;border-radius:3px;background:#F59E0B;flex-shrink:0"></div><div><div style="font-size:11px;font-weight:700">#F59E0B</div><div style="font-size:9px;color:var(--ink3)">预警 · 接近阈值</div></div></div>
-      <div style="display:flex;align-items:center;gap:8px;padding:7px 12px;background:var(--surface);border:1px solid var(--rule);border-radius:6px"><div style="width:18px;height:18px;border-radius:3px;background:#EF4444;flex-shrink:0"></div><div><div style="font-size:11px;font-weight:700">#EF4444</div><div style="font-size:9px;color:var(--ink3)">严重超标 · 告警</div></div></div>
-      <div style="display:flex;align-items:center;gap:8px;padding:7px 12px;background:var(--surface);border:1px solid var(--rule);border-radius:6px"><div style="width:18px;height:18px;border-radius:3px;background:#22C55E;flex-shrink:0"></div><div><div style="font-size:11px;font-weight:700">#22C55E</div><div style="font-size:9px;color:var(--ink3)">达成目标</div></div></div>
-      <div style="display:flex;align-items:center;gap:8px;padding:7px 12px;background:var(--surface);border:1px solid var(--rule);border-radius:6px"><div style="width:18px;height:18px;border-radius:3px;background:#0B1120;flex-shrink:0;border:1px solid #334155"></div><div><div style="font-size:11px;font-weight:700">#0B1120</div><div style="font-size:9px;color:var(--ink3)">主背景</div></div></div>
-      <div style="display:flex;align-items:center;gap:8px;padding:7px 12px;background:var(--surface);border:1px solid var(--rule);border-radius:6px"><div style="width:18px;height:18px;border-radius:3px;background:#1E293B;flex-shrink:0"></div><div><div style="font-size:11px;font-weight:700">#1E293B</div><div style="font-size:9px;color:var(--ink3)">卡片边框</div></div></div>
-    </div>
-
-    <!-- REDESIGN MOCKUP -->
+    <!-- Redesign banner + interactive prototype block -->
     <div class="rdbanner">
       <div class="rdb-l">
         <div class="rdb-dot"></div>
         <div>
-          <div class="rdb-lbl">重设计界面原型 — Redesigned Dashboard</div>
-          <div class="rdb-d">以下为原创重设计界面，非 AWS 现有产品。基于审计问题全面重新设计。</div>
+          <div class="rdb-lbl">Redesigned Interface — Interactive Prototype</div>
+          <div class="rdb-d">以下为原创重设计界面，非 AWS 现有产品。完全基于审计问题从零设计，含完整可交互前端原型。</div>
         </div>
       </div>
-      <div class="rdb-tag">✦ Original Redesign</div>
+      <div class="rdb-tag">✦ Original Work</div>
     </div>
 
-    <div class="mo">
-      <div class="mo-lbl">// CloudView · Infrastructure &amp; Cost Monitoring · FinOps View · Redesign Prototype</div>
-      <div class="mc">
-        <!-- Sidebar -->
-        <div class="sb">
-          <div class="sb-logo">
-            <div class="sb-lm">☁</div>
-            <div><div class="sb-ln">CloudView</div><div class="sb-ls">Infrastructure Monitoring</div></div>
-          </div>
-          <div class="sb-sec">Overview</div>
-          <div class="sb-i act"><svg width="11" height="11" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg> Dashboard</div>
-          <div class="sb-i"><svg width="11" height="11" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/></svg> Alerts<span class="sb-bge">3</span></div>
-          <div class="sb-sec">Compute</div>
-          <div class="sb-i"><svg width="11" height="11" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="12" y1="17" x2="12" y2="21"/></svg> EC2 Instances</div>
-          <div class="sb-i"><svg width="11" height="11" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg> Lambda</div>
-          <div class="sb-sec">Cost &amp; KPI</div>
-          <div class="sb-i"><svg width="11" height="11" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg> Billing</div>
-          <div class="sb-i"><svg width="11" height="11" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg> KPI Tracker</div>
-          <div class="sb-i"><svg width="11" height="11" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg> RI / Savings Plans</div>
-          <div class="sb-ft"><div class="sb-lv"></div>Live · synced 43s</div>
+    <!-- Prototype CTA + iframe preview -->
+    <div style="margin-bottom:32px">
+      <!-- CTA row -->
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+        <div>
+          <div style="font-size:13px;font-weight:600;color:var(--ink);margin-bottom:3px">CloudView FinOps Dashboard</div>
+          <div style="font-size:12px;color:var(--ink2)">5 pages · fully interactive · click any element below or open full screen</div>
         </div>
-        <!-- Main -->
-        <div class="mn">
-          <div class="mn-top">
-            <div><div class="mn-tt">Dashboard</div><div class="mn-st">us-east-1 · Mar 07 2026 · FinOps View</div></div>
-            <div class="mn-ps">
-              <div class="mn-p">us-east-1 ▾</div>
-              <div class="mn-p">Mar 2026 ▾</div>
-              <button class="mn-btn">+ Alert</button>
-            </div>
+        <a href="finops-prototype.html" target="_blank"
+          style="display:inline-flex;align-items:center;gap:8px;background:var(--ink);color:var(--bg);font-size:12px;font-weight:600;letter-spacing:.02em;padding:10px 20px;border-radius:4px;text-decoration:none;transition:background .2s;flex-shrink:0"
+          onmouseover="this.style.background='#1A52CC'" onmouseout="this.style.background='var(--ink)'">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+          Open Full Prototype
+        </a>
+      </div>
+
+      <!-- iframe preview with browser chrome -->
+      <div style="border-radius:10px;overflow:hidden;border:1px solid var(--rule);box-shadow:0 4px 24px rgba(0,0,0,.08)">
+        <!-- Browser chrome -->
+        <div style="background:#1F2937;padding:9px 14px;display:flex;align-items:center;gap:7px;border-bottom:1px solid #374151">
+          <div style="display:flex;gap:5px">
+            <div style="width:10px;height:10px;border-radius:50%;background:#EF4444;opacity:.7"></div>
+            <div style="width:10px;height:10px;border-radius:50%;background:#F59E0B;opacity:.7"></div>
+            <div style="width:10px;height:10px;border-radius:50%;background:#22C55E;opacity:.7"></div>
           </div>
-          <div class="kpis">
-            <div class="kpi" style="--kc:#22C55E"><div class="kpi-l">Running Instances</div><div class="kpi-v">24</div><div class="kpi-d" style="color:#22C55E">↑ 3 since yesterday</div></div>
-            <div class="kpi" style="--kc:#3B82F6"><div class="kpi-l">Lambda Invoc / hr</div><div class="kpi-v">1.2M</div><div class="kpi-d" style="color:#3B82F6">↑ 8.4% vs last hr</div></div>
-            <div class="kpi" style="--kc:#F59E0B"><div class="kpi-l">Monthly Cost</div><div class="kpi-v" style="color:#F59E0B">$4,821</div><div class="kpi-d">Budget $6,000 · 80%</div></div>
-            <div class="kpi" style="--kc:#EF4444"><div class="kpi-l">Active Alerts</div><div class="kpi-v" style="color:#EF4444">3</div><div class="kpi-d" style="color:#EF4444">2 Critical · 1 Warn</div></div>
-          </div>
-          <div class="r2">
-            <div class="card">
-              <div class="card-t">CPU & Network Utilization <span class="ctag">12h</span></div>
-              <div class="ch">
-                <svg width="100%" height="100%" viewBox="0 0 340 60" preserveAspectRatio="none">
-                  <defs><linearGradient id="g1" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#3B82F6" stop-opacity=".18"/><stop offset="100%" stop-color="#3B82F6" stop-opacity="0"/></linearGradient></defs>
-                  <line x1="0" y1="15" x2="340" y2="15" stroke="#1E293B" stroke-width=".7"/>
-                  <line x1="0" y1="30" x2="340" y2="30" stroke="#1E293B" stroke-width=".7"/>
-                  <line x1="0" y1="45" x2="340" y2="45" stroke="#1E293B" stroke-width=".7"/>
-                  <path d="M0,45 C28,41 57,29 85,37 C113,45 142,17 170,22 C198,27 227,9 255,17 C283,25 312,31 340,19 L340,60 L0,60Z" fill="url(#g1)"/>
-                  <path d="M0,45 C28,41 57,29 85,37 C113,45 142,17 170,22 C198,27 227,9 255,17 C283,25 312,31 340,19" fill="none" stroke="#3B82F6" stroke-width="1.5" stroke-linecap="round"/>
-                  <path d="M0,53 C28,49 57,41 85,45 C113,49 142,32 170,36 C198,40 227,25 255,28 C283,32 312,40 340,32" fill="none" stroke="#F59E0B" stroke-width="1.5" stroke-linecap="round" opacity=".8"/>
-                  <circle cx="227" cy="9" r="2.5" fill="#3B82F6"/>
-                  <circle cx="227" cy="9" r="4.5" fill="none" stroke="#3B82F6" stroke-width=".8" opacity=".4"/>
-                </svg>
-              </div>
-              <div style="display:flex;gap:10px;margin-top:4px">
-                <div style="display:flex;align-items:center;gap:4px;font-size:9px;color:#3D5068"><div style="width:12px;height:1.5px;background:#3B82F6;border-radius:1px"></div>CPU avg</div>
-                <div style="display:flex;align-items:center;gap:4px;font-size:9px;color:#3D5068"><div style="width:12px;height:1.5px;background:#F59E0B;border-radius:1px"></div>Network</div>
-              </div>
-            </div>
-            <div class="card">
-              <div class="card-t">EC2 Instances <span class="ctag">24 total</span></div>
-              <div class="inst-l">
-                <div class="ir"><div class="id id-g"></div><div class="in">prod-web-01</div><div class="it">t3.large</div><div class="ip" style="color:#EF4444">78%</div><div class="ib"><div class="ibf b-r" style="width:78%"></div></div></div>
-                <div class="ir"><div class="id id-g"></div><div class="in">prod-api-02</div><div class="it">m5.xl</div><div class="ip" style="color:#F59E0B">42%</div><div class="ib"><div class="ibf b-w" style="width:42%"></div></div></div>
-                <div class="ir"><div class="id id-g"></div><div class="in">data-pipeline-1</div><div class="it">c5.2xl</div><div class="ip" style="color:#EF4444">91%</div><div class="ib"><div class="ibf b-r" style="width:91%"></div></div></div>
-                <div class="ir"><div class="id id-a"></div><div class="in">staging-db-03</div><div class="it">r5.lg</div><div class="ip" style="color:#334155">—</div><div class="ib"><div class="ibf b-b" style="width:0%"></div></div></div>
-                <div class="ir"><div class="id id-s"></div><div class="in">dev-backend-07</div><div class="it">t2.micro</div><div class="ip" style="color:#334155">—</div><div class="ib"><div class="ibf b-b" style="width:0%"></div></div></div>
-              </div>
-            </div>
-          </div>
-          <div class="r3">
-            <div class="card">
-              <div class="card-t">Cost by Service <span class="ctag">Mar 2026</span></div>
-              <div class="crs">
-                <div><div class="cr-m"><span>EC2</span><span style="color:#E2E8F0;font-family:'JetBrains Mono',monospace;font-size:9px">$2,140</span></div><div class="cr-t"><div class="cr-f" style="width:89%"></div></div></div>
-                <div><div class="cr-m"><span>RDS</span><span style="color:#E2E8F0;font-family:'JetBrains Mono',monospace;font-size:9px">$980</span></div><div class="cr-t"><div class="cr-f" style="width:41%"></div></div></div>
-                <div><div class="cr-m"><span>S3</span><span style="color:#E2E8F0;font-family:'JetBrains Mono',monospace;font-size:9px">$620</span></div><div class="cr-t"><div class="cr-f" style="width:26%"></div></div></div>
-                <div><div class="cr-m"><span>Lambda</span><span style="color:#E2E8F0;font-family:'JetBrains Mono',monospace;font-size:9px">$490</span></div><div class="cr-t"><div class="cr-f" style="width:20%"></div></div></div>
-                <div><div class="cr-m"><span>Other</span><span style="color:#E2E8F0;font-family:'JetBrains Mono',monospace;font-size:9px">$591</span></div><div class="cr-t"><div class="cr-f" style="width:16%;background:#334155"></div></div></div>
-              </div>
-              <div class="ct-bot"><div class="ct-l">TOTAL MTD</div><div class="ct-v">$4,821</div></div>
-            </div>
-            <div class="card">
-              <div class="card-t">Active Alerts <span class="ctag">3</span></div>
-              <div class="al-l">
-                <div class="al al-c"><div><div class="al-tt">data-pipeline-1: CPU &gt;90%</div><div class="al-m">CRITICAL · 3min · us-east-1a</div></div></div>
-                <div class="al al-c"><div><div class="al-tt">data-etl-job: Error 7.2%</div><div class="al-m">CRITICAL · 11min · Lambda</div></div></div>
-                <div class="al al-w"><div><div class="al-tt">email-sender: Error 2.8%</div><div class="al-m">WARNING · 28min · Lambda</div></div></div>
-                <div class="al al-i"><div><div class="al-tt">Monthly cost at 80% budget</div><div class="al-m">INFO · 2hr · Billing</div></div></div>
-              </div>
-            </div>
-            <div class="card">
-              <div class="card-t">KPI Status — <span style="color:#EF4444;font-size:8px">超标项置顶（重设计改进）</span></div>
-              <div class="ks">
-                <div class="kr kr-c"><div class="kr-top"><span class="kr-n">EC2 Prev Gen</span><span class="kr-v">43%<span class="kr-g">goal ≤10%</span></span></div><div class="kr-b"><div class="kr-bf b-r" style="width:43%"></div></div></div>
-                <div class="kr kr-c"><div class="kr-top"><span class="kr-n">EC2 Spot</span><span class="kr-v">1%<span class="kr-g">goal ≥10%</span></span></div><div class="kr-b"><div class="kr-bf b-r" style="width:1%"></div></div></div>
-                <div class="kr kr-ok"><div class="kr-top"><span class="kr-n">EBS gp3</span><span class="kr-v">63%<span class="kr-g">goal ≥50%</span></span></div><div class="kr-b"><div class="kr-bf" style="width:63%;background:#22C55E"></div></div></div>
-                <div class="kr kr-ok"><div class="kr-top"><span class="kr-n">S3 Standard</span><span class="kr-v">100%<span class="kr-g">goal ≥65%</span></span></div><div class="kr-b"><div class="kr-bf" style="width:100%;background:#22C55E"></div></div></div>
-              </div>
-              <div style="margin-top:7px;font-size:9px;color:#3B82F6;font-weight:600;cursor:pointer">View full KPI report →</div>
+          <div style="flex:1;background:#111827;border-radius:4px;padding:3px 10px;font-family:'JetBrains Mono',monospace;font-size:10px;color:#6B7280;margin:0 8px">cloudview.internal/finops/overview</div>
+          <a href="finops-prototype.html" target="_blank" style="font-family:'JetBrains Mono',monospace;font-size:9px;color:#4B5563;text-decoration:none;transition:color .15s;white-space:nowrap" onmouseover="this.style.color='#9CA3AF'" onmouseout="this.style.color='#4B5563'">open ↗</a>
+        </div>
+        <!-- The iframe -->
+        <div style="position:relative;height:560px;background:#030712">
+          <iframe
+            src="finops-prototype.html"
+            style="width:100%;height:100%;border:none;display:block"
+            title="CloudView FinOps Interactive Prototype"
+            loading="lazy"
+          ></iframe>
+          <!-- Click-through overlay with hint that fades -->
+          <div id="iframeHint" style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none;opacity:1;transition:opacity .4s">
+            <div style="background:rgba(3,7,18,.75);backdrop-filter:blur(4px);border:1px solid rgba(255,255,255,.08);border-radius:8px;padding:12px 20px;display:flex;align-items:center;gap:8px;font-size:12px;color:rgba(255,255,255,.6)">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="opacity:.7"><path d="M4 6h16M4 12h16M4 18h7"/></svg>
+              Click to interact · or open full screen for best experience
             </div>
           </div>
         </div>
       </div>
     </div>
+  </div>
 
+
+  <div class="w">
     <!-- Spec table -->
-    <div style="margin-top:32px">
-      <div class="tag-r">改进规格对照</div>
+    <div style="margin-top:40px">
+      <div class="tag-r">改进规格对照 — Before / After</div>
       <table class="stbl">
-        <thead><tr><th>类别</th><th>现有系统问题</th><th>重设计方案</th></tr></thead>
+        <thead><tr><th>Category</th><th>Before — AWS CID</th><th>After — Redesign</th></tr></thead>
         <tbody>
-          <tr><td class="cat">字体</td><td class="was">QuickSight 默认字体，标题/正文/数字层级模糊</td><td class="now">Inter（UI文字）+ JetBrains Mono（所有数字），5 级字号体系</td></tr>
-          <tr><td class="cat">颜色语义</td><td class="was">绿色同时表达"省钱/达成/下降"，颜色做装饰用</td><td class="now">蓝=正常 / 橙=预警 / 红=严重 / 绿=达成，严格单义</td></tr>
-          <tr><td class="cat">卡片样式</td><td class="was">部分渐变发光边框，部分无边框，风格不统一</td><td class="now">统一 1px solid #1E293B，背景 #0F172A，圆角 6px，无 glow</td></tr>
-          <tr><td class="cat">导航结构</td><td class="was">三个独立 URL，切换丢失上下文</td><td class="now">统一 Sidebar + 全局筛选器，上下文全程保留</td></tr>
-          <tr><td class="cat">KPI 排序</td><td class="was">超标与达标行高相同，无优先级，无行动路径</td><td class="now">超标项置顶 + 红色高亮 + "查看详情"入口</td></tr>
-          <tr><td class="cat">角色视图</td><td class="was">高管与工程师混用同一页面</td><td class="now">Executive / FinOps / Engineering 三层视图分离</td></tr>
+          <tr><td class="cat">Typography</td><td class="was">QuickSight default, no scale — titles/body/numbers visually equal weight</td><td class="now">Inter (UI) + JetBrains Mono (all numbers) · strict 5-level scale</td></tr>
+          <tr><td class="cat">Color semantics</td><td class="was">Green = savings / goal met / value down — 3 conflicting meanings in one product</td><td class="now">Amber = warning · Red = critical · Green = goal met · Blue = informational — one meaning each, no exceptions</td></tr>
+          <tr><td class="cat">Information hierarchy</td><td class="was">All charts equal weight — 20+ panels compete for attention on one screen</td><td class="now">Primary: MTD cost + forecast variance · Secondary: anomalies + KPI risk · Tertiary: trends + tables</td></tr>
+          <tr><td class="cat">Navigation</td><td class="was">3 disconnected URLs — switching loses account filter context</td><td class="now">Unified sidebar · global filter bar persists across all views · context never lost</td></tr>
+          <tr><td class="cat">KPI presentation</td><td class="was">At-risk rows visually identical to on-track rows — no urgency signal</td><td class="now">AT RISK badge · estimated savings if resolved · direct "Create ticket" action entry</td></tr>
+          <tr><td class="cat">Anomaly detection</td><td class="was">Buried in tables — no surfacing of unexpected spend changes</td><td class="now">Dedicated anomaly panel with affected resource, cost delta, and inline action</td></tr>
+          <tr><td class="cat">Role clarity</td><td class="was">Executive + engineer content mixed on same page — neither served well</td><td class="now">Role selector: Executive / FinOps / Engineering — progressive disclosure of detail depth</td></tr>
         </tbody>
       </table>
     </div>
   </div>
 </section>
+
 
 <!-- ═══ 05 OUTCOME ═══ -->
 <section id="outcome">
@@ -777,15 +806,62 @@ footer{border-top:1px solid var(--rule);padding:32px 0}
   </div>
 </section>
 
-<footer>
-  <div class="w ft-r">
-    <div class="ft-b">AWS CID Redesign — Case Study</div>
-    <div style="display:flex;align-items:center;gap:20px">
-      <div style="font-size:12px;color:var(--ink3);display:flex;align-items:center;gap:6px"><span style="font-size:14px">📍</span> Shanghai, China</div>
-      <div class="ft-c">Research &amp; Design · Cloud Intelligence Dashboard · 2026</div>
-    </div>
-  </div>
+<!-- Next cases -->
+<div class="pf-next-section">
+  <a href="urban-casestudy.html" class="pf-next-card">
+    <div class="pf-next-label">← Previous Case Study</div>
+    <div class="pf-next-title">Urban Health Units</div>
+    <div class="pf-next-desc">A GIS-driven urban health framework translating spatial data into livable green infrastructure, bridging behavioral science and city planning.</div>
+    <div class="pf-next-arrow">→</div>
+  </a>
+  <a href="bofa-casestudy.html" class="pf-next-card">
+    <div class="pf-next-label">Also worth seeing →</div>
+    <div class="pf-next-title">Bank of America Redesign</div>
+    <div class="pf-next-desc">Evaluated and redesigned core banking workflows — exposing three systemic UX gaps driving user confusion and low decision confidence.</div>
+    <div class="pf-next-arrow">→</div>
+  </a>
+</div>
+
+<footer class="pf-footer">
+  <span class="pf-footer-copy">© 2026 Sirong Zhao · Shanghai</span>
+  <span class="pf-footer-name">Sirong Zhao — Product Designer</span>
+  <a href="mailto:zhsirong@umich.edu" style="font-size:12px;color:var(--pf-ink);text-decoration:none;opacity:.5;">zhsirong@umich.edu</a>
 </footer>
 
+<script>
+// Portfolio cursor
+const pfCur=document.getElementById('pf-cursor'),pfRing=document.getElementById('pf-ring');
+let mx=0,my=0,rx=0,ry=0;
+document.addEventListener('mousemove',e=>{mx=e.clientX;my=e.clientY;});
+(function loop(){
+  pfCur.style.cssText=`left:${mx}px;top:${my}px`;
+  rx+=(mx-rx)*.1;ry+=(my-ry)*.1;
+  pfRing.style.cssText=`left:${rx}px;top:${ry}px`;
+  requestAnimationFrame(loop);
+})();
+window.addEventListener('scroll',()=>{
+  document.getElementById('pfNav').classList.toggle('scrolled',window.scrollY>60);
+});
+// Scroll reveal
+const obs=new IntersectionObserver(entries=>{
+  entries.forEach(e=>{if(e.isIntersecting){e.target.classList.add('visible');obs.unobserve(e.target);}});
+},{threshold:.08});
+document.querySelectorAll('.reveal').forEach(el=>obs.observe(el));
+
+// Iframe hint: fade out on first click inside the iframe area
+(function(){
+  const hint = document.getElementById('iframeHint');
+  if(!hint) return;
+  // Fade after 3s automatically
+  setTimeout(()=>{ if(hint) hint.style.opacity='0'; }, 3000);
+  // Also fade on any click near the iframe
+  document.addEventListener('click', function handler(e){
+    const wrap = hint && hint.closest('div');
+    if(hint){ hint.style.opacity='0'; }
+    document.removeEventListener('click', handler);
+  }, {once: true});
+})();
+</script>
 </body>
 </html>
+
