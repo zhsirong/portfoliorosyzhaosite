@@ -394,7 +394,7 @@ body{padding-top:66px}
       <div class="mi"><div class="l">目标用户</div><div class="v">FinOps · DevOps · 高管</div></div>
       <div class="mi"><div class="l">研究方法</div><div class="v">界面审计 · IA 重构 · 视觉重设计</div></div>
       <div class="mi"><div class="l">涵盖模块</div><div class="v">CUDOS · CID · KPI Tracker</div></div>
-      <div class="mi"><div class="l">Location</div><div class="v">📍 Shanghai, China</div></div>
+      <div class="mi"><div class="l">Location</div><div class="v"></div></div>
     </div>
   </div>
 </header>
@@ -423,6 +423,47 @@ body{padding-top:66px}
     <div class="iq">
       <div class="iq-t">"企业平均约 27% 的云支出因资源闲置或配置不合理而浪费。Flexera 2025 报告显示，云成本管理已超越安全成为企业云治理最大挑战。"</div>
       <div class="iq-s">// Flexera 2025 State of the Cloud · AWS CID 官方文档</div>
+    </div>
+
+    <!-- Research Sources -->
+    <div style="margin-bottom:36px">
+      <div class="tag-e" style="margin-bottom:14px">研究来源 — Research Sources</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:0;border:1px solid var(--rule)">
+        <div style="padding:16px 20px;border-bottom:1px solid var(--rule);border-right:1px solid var(--rule)">
+          <div style="font-size:11px;font-weight:700;color:var(--ink);margin-bottom:4px">AWS CID 官方文档</div>
+          <div style="font-size:12px;color:var(--ink2);line-height:1.6">涵盖 CUDOS、CID、KPI Tracker 三套仪表盘的部署指南与模块参考文档 <span style="color:var(--ink3)">— Official Documentation</span></div>
+        </div>
+        <div style="padding:16px 20px;border-bottom:1px solid var(--rule)">
+          <div style="font-size:11px;font-weight:700;color:var(--ink);margin-bottom:4px">Flexera 2025 云计算现状报告</div>
+          <div style="font-size:12px;color:var(--ink2);line-height:1.6">行业背景数据，云成本管理已超越安全成为企业治理首要挑战，用于用户问题定性 <span style="color:var(--ink3)">— State of the Cloud</span></div>
+        </div>
+        <div style="padding:16px 20px;border-bottom:1px solid var(--rule);border-right:1px solid var(--rule)">
+          <div style="font-size:11px;font-weight:700;color:var(--ink);margin-bottom:4px">FinOps Foundation 参考材料</div>
+          <div style="font-size:12px;color:var(--ink2);line-height:1.6">云成本治理框架与 FinOps 实践者工作流参考</div>
+        </div>
+        <div style="padding:16px 20px;border-bottom:1px solid var(--rule)">
+          <div style="font-size:11px;font-weight:700;color:var(--ink);margin-bottom:4px">人工界面审计 · 12 张截图标注</div>
+          <div style="font-size:12px;color:var(--ink2);line-height:1.6">覆盖 Billing、KPI Tracker、Spot Savings、RI Summary 四个模块的逐屏标注审查</div>
+        </div>
+      </div>
+      <div style="margin-top:12px;padding:14px 18px;background:var(--surface);border:1px solid var(--rule);border-left:3px solid var(--blue)">
+        <div style="font-size:12px;color:var(--ink2);line-height:1.7">审计过程为逐屏人工标注，涵盖12张 CID 仪表盘截图。每张截图逐项检查：层级冲突、重复标签、导航断裂、颜色语义不一致——所有问题分类记录后，才进入重设计阶段。<span style="color:var(--ink3);font-style:italic"> Each screen was inspected for hierarchy conflicts, duplicated labels, navigation issues, and color semantic inconsistencies.</span></div>
+      </div>
+    </div>
+
+    <!-- AI-assisted synthesis note -->
+    <div style="margin-bottom:36px;padding:16px 20px;border:1px solid var(--rule);background:var(--surface)">
+      <div style="font-size:11px;font-weight:700;color:var(--ink3);text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px">关于研究方法 — A Note on Method</div>
+      <div style="font-size:13px;color:var(--ink2);line-height:1.75">审计过程中使用了 AI 工具辅助归纳——主要用于将多张截图中反复出现的界面问题（重复标签、层级冲突、颜色语义不一致）聚类整理。所有问题定义、设计决策与重设计方向，均在人工审查 CID 仪表盘与 AWS 文档后独立判断。<span style="color:var(--ink3);font-style:italic"> AI was used only as a synthesis aid; all design decisions were made manually.</span> 交互原型从零独立搭建。</div>
+    </div>
+
+    <!-- Design process note -->
+    <div style="margin-bottom:48px">
+      <div class="tag-e" style="margin-bottom:14px">项目的真实起点</div>
+      <div style="font-size:14px;color:var(--ink);line-height:1.8;max-width:680px">
+        <p style="margin:0 0 16px">这个项目最初只是一次视觉审计练习。仪表盘内容密集、难以快速扫读，所以最初的判断是：主要问题出在视觉层级上——太多图表在同一屏内争夺注意力。</p>
+        <p style="margin:0">但反复审查多张 CID 截图后，我意识到更深的问题不是视觉密度，而是<strong>决策路径的缺失</strong>。用户能看到异常，但界面没有给出"下一步该做什么"的引导。从"发现问题"到"定位具体资源、确认成本影响、执行建议操作"，需要跨越多个断裂的视图手动操作。这个认知让设计重心从视觉整理转向了<strong>围绕决策流程重构信息架构</strong>。<span style="color:var(--ink3);font-style:italic"> The focus shifted from visual cleanup to restructuring the IA around a decision workflow.</span></p>
+      </div>
     </div>
 
     <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:48px">
@@ -1854,17 +1895,18 @@ root.render(<App />);
     <h2 class="sh2">预期改善与<em>设计反思</em></h2>
     <div style="font-size:14px;color:var(--ink3);font-style:italic;margin-top:-8px;margin-bottom:24px;font-family:'Fraunces',serif;font-weight:300">Projected Improvements &amp; Design Reflection</div>
     <p class="sdesc">基于界面审计建立的基准，重设计方案在四个核心体验维度预计产生显著改善。</p>
+    <div style="font-size:11px;font-weight:700;color:var(--ink3);text-transform:uppercase;letter-spacing:.08em;margin-bottom:16px">预期改善方向 — Expected Impact</div>
     <div class="ocs">
-      <div class="oc"><div class="oc-v" style="color:var(--teal)">−60%</div><div class="oc-l">异常溯源点击次数<br><span style="font-size:10px">KPI 超标→根因定位</span></div></div>
-      <div class="oc"><div class="oc-v" style="color:var(--blue)">3×</div><div class="oc-l">颜色理解速度<br><span style="font-size:10px">新用户首次任务完成</span></div></div>
-      <div class="oc"><div class="oc-v" style="color:var(--amber)">3层</div><div class="oc-l">角色专属视图<br><span style="font-size:10px">Executive / FinOps / Eng</span></div></div>
-      <div class="oc"><div class="oc-v" style="color:var(--red)">0次</div><div class="oc-l">跨模块筛选重设<br><span style="font-size:10px">上下文全程保留</span></div></div>
+      <div class="oc"><div class="oc-l" style="font-size:13px;color:var(--ink);line-height:1.6">从异常发现到根因定位的操作步骤减少，通过内联展示推荐操作实现 <span style="color:var(--ink3);font-style:italic">— fewer steps from anomaly to action</span></div></div>
+      <div class="oc"><div class="oc-l" style="font-size:13px;color:var(--ink);line-height:1.6">统一颜色语义后的扫读效率提升——每种颜色只对应一个含义，无例外 <span style="color:var(--ink3);font-style:italic">— consistent color semantics</span></div></div>
+      <div class="oc"><div class="oc-l" style="font-size:13px;color:var(--ink);line-height:1.6">跨模块切换时筛选器状态全程保留，无需反复重设上下文 <span style="color:var(--ink3);font-style:italic">— persistent global filter context</span></div></div>
+      <div class="oc"><div class="oc-l" style="font-size:13px;color:var(--ink);line-height:1.6">高管总览与工程细节视图通过角色分层清晰分离 <span style="color:var(--ink3);font-style:italic">— role-based progressive disclosure</span></div></div>
     </div>
     <div class="rg">
-      <div class="rc"><div class="rc-t">核心洞察</div><div class="rc-b">AWS CID 最根本的问题不是视觉风格，而是<strong>信息架构混乱与角色需求未分层</strong>。QuickSight 模板化使所有内容权重相同，造成"数据过载但决策困难"的悖论。重设计最大价值在于建立"看见→理解→行动→追踪"的完整决策旅程。</div></div>
-      <div class="rc"><div class="rc-t">设计约束与取舍</div><div class="rc-b">AWS CID 基于 QuickSight 构建，跨页面上下文保留受限于平台能力。本方案作为"理想态"设计，部分功能需结合 QuickSight API 定制或迁移至独立前端实现。实际落地建议分阶段推进，优先修复颜色语义系统和 KPI 超标告警逻辑。</div></div>
-      <div class="rc"><div class="rc-t">下一步迭代</div><div class="rc-b">① <strong>AI 异常诊断</strong>：成本突增时自动分析根因，提供中文说明。② <strong>预测成本模型</strong>：基于历史预测下月账单，标注超预算风险。③ <strong>Slack / 钉钉推送</strong>：告警集成至协作工具，形成 FinOps 工作流闭环。</div></div>
-      <div class="rc"><div class="rc-t">通用设计原则</div><div class="rc-b">云成本工具的核心目标是<strong>降低决策摩擦</strong>，而非炫技式数据展示。颜色是最快的认知通道，语义混用代价远大于审美收益。每个数据展示背后，都应该有"用户能做什么"的设计思考。</div></div>
+      <div class="rc"><div class="rc-t">核心洞察</div><div class="rc-b">问题的根源不是视觉密度，而是界面对所有数据一视同仁——没有从"发现异常"到"下一步操作"的自然路径。重设计的本质是让这条决策路径变得<strong>显性可见</strong>。<span style="color:var(--ink3);font-style:italic"> Making the decision path explicit.</span></div></div>
+      <div class="rc"><div class="rc-t">设计取舍</div><div class="rc-b">我没有尝试把所有 CID 分析视图合并到一个仪表盘——那样只会重新制造当前的信息过载问题。重设计优先保证<strong>跨视图的引导式导航</strong>，而非任意单屏的内容完整性。部分细节被刻意延迟展示。<span style="color:var(--ink3);font-style:italic"> Guided navigation over completeness.</span></div></div>
+      <div class="rc"><div class="rc-t">下一步迭代方向</div><div class="rc-b">三个值得深入的方向：<strong>自动异常根因分析</strong>（当前设计仍需人工排查）、<strong>带置信区间的预测成本模型</strong>、以及<strong>告警路由至钉钉 / Slack</strong>，让决策闭环在仪表盘外也能完成。</div></div>
+      <div class="rc"><div class="rc-t">关于云成本工具的普遍问题</div><div class="rc-b">FinOps 工具最常见的错误是优化数据完整性，而非决策速度。颜色语义的重要性被严重低估——当同一个绿色在不同面板里分别代表"节省"、"目标达成"和"数值下降"时，用户对界面的信任已经瓦解了。<span style="color:var(--ink3);font-style:italic"> Optimizing for decision speed, not data completeness.</span></div></div>
     </div>
   </div>
 </section>
