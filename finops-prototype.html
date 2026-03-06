@@ -1,0 +1,1065 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CloudView FinOps — Interactive Prototype</title>
+<script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+<script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+  * { box-sizing: border-box; }
+  body { margin: 0; font-family: 'Inter', ui-sans-serif, system-ui, sans-serif; background: #030712; }
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap');
+  .font-mono { font-family: 'JetBrains Mono', 'Fira Code', ui-monospace, monospace; }
+  ::-webkit-scrollbar { width: 4px; height: 4px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: #374151; border-radius: 2px; }
+  select option { background: #1F2937; color: #D1D5DB; }
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: .4; }
+  }
+  .animate-pulse { animation: pulse 2s cubic-bezier(0.4,0,0.6,1) infinite; }
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel" data-presets="react">
+const { useState } = React;
+
+// ─────────────────────────────────────────────
+// MOCK DATA
+// ─────────────────────────────────────────────
+const MOCK = {
+  budget: { monthly: 6000000, mtd: 4821340, forecast: 6490000 },
+  momChange: { pct: 15.07, abs: 631000, driver: "EC2 On-Demand" },
+
+  monthlyTrend: [
+    { day: "Mar 1", actual: 148000 }, { day: "Mar 2", actual: 162000 },
+    { day: "Mar 3", actual: 155000 }, { day: "Mar 4", actual: 171000 },
+    { day: "Mar 5", actual: 168000 }, { day: "Mar 6", actual: 179000 },
+    { day: "Mar 7", actual: 214000 },
+    { day: "Mar 8", forecast: 218000 }, { day: "Mar 9", forecast: 212000 },
+    { day: "Mar 10", forecast: 225000 }, { day: "Mar 15", forecast: 219000 },
+    { day: "Mar 20", forecast: 231000 }, { day: "Mar 25", forecast: 228000 },
+    { day: "Mar 31", forecast: 243000 },
+  ],
+
+  costByService: [
+    { id: "ec2", name: "EC2 Compute", mtd: 2140000, mom: 22, color: "#3B82F6",
+      breakdown: [
+        { name: "On-Demand · prod", cost: 1240000, mom: 28 },
+        { name: "On-Demand · staging", cost: 380000, mom: 12 },
+        { name: "Reserved Instances", cost: 420000, mom: -3 },
+        { name: "Spot Instances", cost: 100000, mom: 5 },
+      ]
+    },
+    { id: "rds", name: "RDS", mtd: 980000, mom: 3, color: "#8B5CF6",
+      breakdown: [
+        { name: "db.r5.2xlarge · prod-mysql-01", cost: 620000, mom: 2 },
+        { name: "db.t3.medium · staging", cost: 180000, mom: 8 },
+        { name: "Aurora Serverless · analytics", cost: 180000, mom: -1 },
+      ]
+    },
+    { id: "transfer", name: "Data Transfer", mtd: 624000, mom: 41, color: "#F59E0B",
+      breakdown: [
+        { name: "NAT Gateway · vpc-0a3f…d21", cost: 312000, mom: 89 },
+        { name: "Cross-AZ transfer", cost: 198000, mom: 22 },
+        { name: "CloudFront egress", cost: 114000, mom: 8 },
+      ]
+    },
+    { id: "s3", name: "S3", mtd: 490000, mom: 8, color: "#10B981",
+      breakdown: [
+        { name: "ml-training-data (GET)", cost: 218000, mom: 34 },
+        { name: "prod-assets", cost: 142000, mom: 3 },
+        { name: "log-archive", cost: 130000, mom: -2 },
+      ]
+    },
+    { id: "lambda", name: "Lambda", mtd: 380000, mom: -5, color: "#F97316",
+      breakdown: [
+        { name: "data-etl-job", cost: 180000, mom: -8 },
+        { name: "api-gateway-handler", cost: 120000, mom: 2 },
+        { name: "cron-jobs", cost: 80000, mom: -14 },
+      ]
+    },
+    { id: "other", name: "Other", mtd: 207340, mom: 6, color: "#6B7280",
+      breakdown: [
+        { name: "CloudWatch Logs", cost: 98000, mom: 12 },
+        { name: "Secrets Manager", cost: 62000, mom: 3 },
+        { name: "Misc", cost: 47340, mom: 1 },
+      ]
+    },
+  ],
+
+  instances: [
+    { id: "i-0a1b2c3d4e5f001", name: "prod-web-01", type: "t3.large", region: "cn-north-1a", status: "running", cpu: 78, mem: 64, cost: 142000, tag: "team:platform", trend: [45,52,61,70,74,78,76,78], uptime: "47d", recommendation: "High CPU — consider upgrading to t3.xlarge. Est. cost increase: ¥28K/mo." },
+    { id: "i-0a1b2c3d4e5f002", name: "prod-api-02", type: "m5.xlarge", region: "cn-north-1b", status: "running", cpu: 42, mem: 38, cost: 218000, tag: "team:backend", trend: [38,40,41,43,42,44,41,42], uptime: "31d", recommendation: "Utilization normal. RI coverage: 0%. Purchasing a 1yr RI could save ¥54K/mo." },
+    { id: "i-0a1b2c3d4e5f003", name: "data-pipeline-1", type: "c5.2xlarge", region: "cn-north-1a", status: "running", cpu: 91, mem: 82, cost: 316000, tag: "team:data", trend: [60,65,72,80,85,88,90,91], uptime: "12d", recommendation: "CRITICAL: CPU sustained >90% for 3h. Immediate scaling recommended. Consider c5.4xlarge or ASG." },
+    { id: "i-0a1b2c3d4e5f004", name: "staging-db-03", type: "r5.large", region: "cn-north-1c", status: "pending", cpu: 12, mem: 28, cost: 78000, tag: "team:infra", trend: [8,10,12,11,14,12,11,12], uptime: "8d", recommendation: "Low utilization. Could be stopped outside business hours to save ~¥52K/mo." },
+    { id: "i-0a1b2c3d4e5f005", name: "dev-backend-07", type: "t2.micro", region: "cn-north-1a", status: "stopped", cpu: 0, mem: 0, cost: 8000, tag: "team:backend", trend: [0,0,0,0,0,0,0,0], uptime: "Stopped 3d ago", recommendation: "Instance stopped. Detach and snapshot EBS if no longer needed to avoid storage cost." },
+    { id: "i-0a1b2c3d4e5f006", name: "ml-trainer-gpu-01", type: "p3.2xlarge", region: "cn-north-1a", status: "running", cpu: 94, mem: 71, cost: 892000, tag: "team:ml", trend: [70,75,80,88,90,93,94,94], uptime: "4d", recommendation: "GPU utilization: 96%. Consider Spot for batch training jobs — savings up to 70%." },
+    { id: "i-0a1b2c3d4e5f007", name: "prod-cache-01", type: "r6g.xlarge", region: "cn-north-1b", status: "running", cpu: 18, mem: 74, cost: 96000, tag: "team:platform", trend: [15,16,18,17,19,18,17,18], uptime: "89d", recommendation: "Memory-optimized, normal usage. RI 1yr would reduce cost by ¥24K/mo." },
+  ],
+
+  alerts: [
+    { id: "ALT-001", severity: "critical", title: "NAT Gateway data transfer spike", resource: "vpc-0a3f…d21", region: "cn-north-1", time: "3h ago", cost: 182000, cause: "Unusual outbound traffic pattern detected. 4.2× expected hourly rate. Possible misconfigured application or data exfiltration.", action: "1. Check VPC Flow Logs for source IPs. 2. Review EC2 instances in subnet. 3. Consider VPC endpoint for S3/DynamoDB to eliminate NAT charges.", status: "open" },
+    { id: "ALT-002", severity: "critical", title: "EC2 On-Demand untagged instances detected", resource: "14 instances", region: "cn-north-1a", time: "6d ago", cost: 94000, cause: "14 EC2 instances launched via IAM role ci-runner have no team/project tags. Policy violation — cannot attribute cost to team budget.", action: "1. Tag instances immediately with team: and project: keys. 2. Apply SCP to enforce tagging on launch. 3. Review IAM policy for ci-runner role.", status: "open" },
+    { id: "ALT-003", severity: "warning", title: "S3 GET request volume above baseline", resource: "ml-training-data", region: "cn-north-1", time: "1d ago", cost: 38000, cause: "S3 GET requests 2.1× 7-day average. Likely caused by recent ML training pipeline expansion. Not anomalous if intentional.", action: "1. Confirm with team:ml if increased training runs are expected. 2. Consider S3 Transfer Acceleration or caching layer. 3. Review lifecycle policies.", status: "investigating" },
+    { id: "ALT-004", severity: "warning", title: "Forecasted spend exceeds monthly budget", resource: "All services", region: "All", time: "2h ago", cost: 490000, cause: "Current MTD spend trajectory projects ¥6.49M by month-end, exceeding ¥6.0M budget by 8.2%. Primary driver: EC2 On-Demand (+22% MoM).", action: "1. Review and terminate unused EC2 instances. 2. Accelerate RI purchase for stable workloads. 3. Consider Spot for batch/ML jobs.", status: "open" },
+    { id: "ALT-005", severity: "info", title: "RI expiring in 14 days", resource: "3 × m5.xlarge reservations", region: "cn-north-1", time: "Now", cost: 0, cause: "Reserved Instance contract for 3× m5.xlarge (team:backend) expires Mar 21. Without renewal, instances will revert to On-Demand pricing.", action: "1. Review instance utilization before renewal. 2. Consider converting to Savings Plans for more flexibility. 3. Submit renewal request via AWS console.", status: "open" },
+    { id: "ALT-006", severity: "info", title: "data-pipeline-1 CPU sustained >90%", resource: "i-0a1b2c3d4e5f003", region: "cn-north-1a", time: "3h ago", cost: 0, cause: "CPU utilization has been above 90% for 3 consecutive hours. Application performance may be degraded.", action: "1. Check CloudWatch metrics for memory and disk I/O. 2. Consider vertical scaling to c5.4xlarge. 3. Review application for optimization opportunities.", status: "acknowledged" },
+  ],
+
+  kpis: [
+    { id: "kpi-1", name: "EC2 Prev-Gen Usage", goal: "≤ 10%", goalVal: 10, actual: 43, dir: "max", status: "critical", savings: 184000, affected: 28, affectedList: ["m3.xlarge × 12 (prod)", "c3.2xlarge × 8 (batch)", "m3.large × 8 (staging)"], suggestion: "Migrate to m6i/c6i equivalents. Performance-per-dollar improves 20–40%. 24 of 28 instances can be migrated with zero downtime." },
+    { id: "kpi-2", name: "EC2 Spot Adoption", goal: "≥ 10%", goalVal: 10, actual: 1, dir: "min", status: "critical", savings: 280000, affected: 0, affectedList: ["data-pipeline-1 (batch-eligible)", "ml-trainer-gpu-01 (batch-eligible)", "staging environments (8 instances)"], suggestion: "Batch and ML workloads are ideal Spot candidates. Using Spot Fleet with On-Demand fallback can reduce compute cost 60–70% for these workloads." },
+    { id: "kpi-3", name: "EBS gp3 Coverage", goal: "≥ 50%", goalVal: 50, actual: 63, dir: "min", status: "on-track", savings: 0, affected: 0, affectedList: [], suggestion: "Currently on track. Continue migrating remaining gp2 volumes. gp3 is 20% cheaper and offers configurable performance." },
+    { id: "kpi-4", name: "S3 Intelligent-Tiering", goal: "≥ 40%", goalVal: 40, actual: 28, dir: "min", status: "warning", savings: 62000, affected: 4, affectedList: ["ml-training-data (1.2TB standard)", "log-archive (4.8TB standard)", "backup-store (2.1TB standard)", "analytics-export (780GB standard)"], suggestion: "Enable S3 Intelligent-Tiering on buckets with unpredictable access patterns. Estimated savings: ¥62K/mo based on current access logs." },
+    { id: "kpi-5", name: "RI Coverage (EC2)", goal: "≥ 70%", goalVal: 70, actual: 52, dir: "min", status: "warning", savings: 156000, affected: 0, affectedList: ["prod-api-02 (On-Demand, stable 90d)", "prod-web-01 (On-Demand, stable 60d)", "prod-cache-01 (On-Demand, stable 89d)"], suggestion: "3 stable production instances have zero RI coverage. Purchasing 1yr Standard RIs would save ~¥156K/mo with low risk." },
+    { id: "kpi-6", name: "Untagged Resources", goal: "0%", goalVal: 0, actual: 8, dir: "max", status: "warning", savings: 0, affected: 14, affectedList: ["14 EC2 instances via ci-runner", "3 EBS volumes (orphaned)", "2 Elastic IPs (unattached)"], suggestion: "Enforce tagging via AWS Config rules and SCP. Untagged resources cannot be cost-attributed and indicate governance gaps." },
+    { id: "kpi-7", name: "Savings Plan Coverage", goal: "≥ 60%", goalVal: 60, actual: 71, dir: "min", status: "on-track", savings: 0, affected: 0, affectedList: [], suggestion: "On track. Review Compute Savings Plan vs EC2 Instance Savings Plan for optimal coverage as workload mix evolves." },
+  ],
+
+  regions: ["All regions", "cn-north-1", "cn-northwest-1", "us-east-1"],
+  timeRanges: ["Mar 2026", "Feb 2026", "Last 30 days", "Last 90 days"],
+};
+
+// ─────────────────────────────────────────────
+// UTILITY / UI PRIMITIVES
+// ─────────────────────────────────────────────
+const fmt = (n) => n >= 1000000 ? `¥${(n/1000000).toFixed(2)}M` : n >= 1000 ? `¥${(n/1000).toFixed(0)}K` : `¥${n}`;
+const fmtPct = (n) => `${n > 0 ? "+" : ""}${n}%`;
+
+const Badge = ({ children, variant = "default" }) => {
+  const styles = {
+    critical: "bg-red-950 text-red-400 border border-red-900",
+    warning: "bg-amber-950 text-amber-400 border border-amber-900",
+    info: "bg-blue-950 text-blue-400 border border-blue-900",
+    success: "bg-emerald-950 text-emerald-400 border border-emerald-900",
+    "on-track": "bg-emerald-950 text-emerald-400 border border-emerald-900",
+    default: "bg-gray-800 text-gray-400 border border-gray-700",
+    acknowledged: "bg-gray-800 text-gray-400 border border-gray-700",
+    investigating: "bg-blue-950 text-blue-400 border border-blue-900",
+    open: "bg-red-950 text-red-400 border border-red-900",
+  };
+  return (
+    <span className={`inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-mono font-semibold uppercase tracking-wide ${styles[variant] || styles.default}`}>
+      {children}
+    </span>
+  );
+};
+
+const StatusDot = ({ status }) => {
+  const colors = { running: "bg-emerald-500", stopped: "bg-gray-600", pending: "bg-amber-400" };
+  return <span className={`inline-block w-2 h-2 rounded-full ${colors[status] || "bg-gray-600"} flex-shrink-0`} />;
+};
+
+const MomBadge = ({ val }) => (
+  <span className={`font-mono text-[11px] font-semibold ${val > 10 ? "text-red-400" : val > 0 ? "text-amber-400" : "text-emerald-400"}`}>
+    {fmtPct(val)}
+  </span>
+);
+
+const Card = ({ children, className = "", onClick }) => (
+  <div
+    className={`bg-gray-900 border border-gray-800 rounded-lg ${onClick ? "cursor-pointer hover:border-gray-600 transition-colors" : ""} ${className}`}
+    onClick={onClick}
+  >
+    {children}
+  </div>
+);
+
+const CardHeader = ({ title, right, sub }) => (
+  <div className="flex items-center justify-between px-4 py-3 border-b border-gray-800">
+    <div>
+      <div className="text-[13px] font-semibold text-gray-200">{title}</div>
+      {sub && <div className="text-[11px] text-gray-500 mt-0.5">{sub}</div>}
+    </div>
+    {right && <div className="flex items-center gap-2">{right}</div>}
+  </div>
+);
+
+// Minimal sparkline SVG
+const Sparkline = ({ data, color = "#3B82F6", height = 32 }) => {
+  if (!data || data.length < 2) return null;
+  const max = Math.max(...data, 1);
+  const min = Math.min(...data);
+  const w = 80, h = height;
+  const pts = data.map((v, i) => {
+    const x = (i / (data.length - 1)) * w;
+    const y = h - ((v - min) / (max - min || 1)) * (h - 4) - 2;
+    return `${x},${y}`;
+  }).join(" ");
+  return (
+    <svg width={w} height={h} viewBox={`0 0 ${w} ${h}`} className="overflow-visible">
+      <polyline points={pts} fill="none" stroke={color} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+};
+
+// Simple bar chart for cost by service
+const CostBar = ({ value, max, color }) => (
+  <div className="h-1.5 bg-gray-800 rounded-full overflow-hidden">
+    <div className="h-full rounded-full transition-all" style={{ width: `${(value / max) * 100}%`, background: color }} />
+  </div>
+);
+
+// Trend chart (Dashboard)
+const TrendChart = ({ data }) => {
+  const actualPts = data.filter(d => d.actual);
+  const forecastPts = data.filter(d => d.forecast);
+  const all = [...actualPts.map(d => d.actual), ...forecastPts.map(d => d.forecast)];
+  const max = Math.max(...all) * 1.1;
+  const W = 640, H = 80;
+  const x = (i, total) => (i / (total - 1)) * W;
+  const y = (v) => H - (v / max) * H + 4;
+  const budgetY = y(194000);
+
+  const actualPath = actualPts.map((d, i) => `${i === 0 ? "M" : "L"}${x(i, data.length)},${y(d.actual)}`).join(" ");
+  const forecastPath = forecastPts.map((d, i) => `${i === 0 ? `M${x(actualPts.length - 1, data.length)},${y(actualPts[actualPts.length - 1].actual)} L` : "L"}${x(actualPts.length + i, data.length)},${y(d.forecast)}`).join(" ");
+
+  const areaPath = actualPts.map((d, i) => `${i === 0 ? "M" : "L"}${x(i, data.length)},${y(d.actual)}`).join(" ") + ` L${x(actualPts.length - 1, data.length)},${H} L0,${H} Z`;
+
+  return (
+    <svg width="100%" viewBox={`0 0 ${W} ${H + 8}`} className="overflow-visible">
+      <defs>
+        <linearGradient id="tg" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stopColor="#3B82F6" stopOpacity="0.15" />
+          <stop offset="100%" stopColor="#3B82F6" stopOpacity="0" />
+        </linearGradient>
+      </defs>
+      {[0.25, 0.5, 0.75, 1].map(t => (
+        <line key={t} x1="0" y1={y(max * t)} x2={W} y2={y(max * t)} stroke="#1F2937" strokeWidth="1" />
+      ))}
+      <line x1="0" y1={budgetY} x2={W} y2={budgetY} stroke="#F59E0B" strokeWidth="1" strokeDasharray="4,4" opacity="0.5" />
+      <path d={areaPath} fill="url(#tg)" />
+      <path d={actualPath} fill="none" stroke="#3B82F6" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+      <path d={forecastPath} fill="none" stroke="#3B82F6" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" strokeDasharray="5,3" opacity="0.55" />
+      <circle cx={x(actualPts.length - 1, data.length)} cy={y(actualPts[actualPts.length - 1].actual)} r="3.5" fill="#3B82F6" />
+      <text x={x(actualPts.length - 1, data.length) + 5} y={y(actualPts[actualPts.length - 1].actual) - 6} fontSize="8" fill="#6B7280" fontFamily="monospace">Today</text>
+      <text x={W - 2} y={budgetY - 4} fontSize="8" fill="#F59E0B" fontFamily="monospace" textAnchor="end" opacity="0.7">Budget/day</text>
+    </svg>
+  );
+};
+
+// Progress bar for KPI
+const KpiBar = ({ actual, goal, dir, status }) => {
+  const pct = dir === "max" ? Math.min((actual / goal) * 100, 100) : Math.min((actual / (goal * 1.5)) * 100, 100);
+  const color = status === "critical" ? "#EF4444" : status === "warning" ? "#F59E0B" : "#22C55E";
+  return (
+    <div className="h-1.5 bg-gray-800 rounded-full overflow-hidden mt-1.5">
+      <div className="h-full rounded-full" style={{ width: `${pct}%`, background: color }} />
+    </div>
+  );
+};
+
+// ─────────────────────────────────────────────
+// MODAL
+// ─────────────────────────────────────────────
+const Modal = ({ open, onClose, children }) => {
+  if (!open) return null;
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center" onClick={onClose}>
+      <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" />
+      <div className="relative z-10 w-full max-w-lg" onClick={e => e.stopPropagation()}>
+        {children}
+      </div>
+    </div>
+  );
+};
+
+// ─────────────────────────────────────────────
+// DETAIL DRAWER
+// ─────────────────────────────────────────────
+const Drawer = ({ open, onClose, children }) => (
+  <div className={`fixed inset-y-0 right-0 z-40 w-[440px] bg-gray-950 border-l border-gray-800 shadow-2xl transform transition-transform duration-300 flex flex-col ${open ? "translate-x-0" : "translate-x-full"}`}>
+    <div className="flex items-center justify-between px-5 py-4 border-b border-gray-800 flex-shrink-0">
+      <span className="text-[11px] font-mono text-gray-500 uppercase tracking-widest">Detail</span>
+      <button onClick={onClose} className="text-gray-500 hover:text-gray-200 transition-colors text-xl leading-none">×</button>
+    </div>
+    <div className="flex-1 overflow-y-auto">{children}</div>
+  </div>
+);
+
+// ─────────────────────────────────────────────
+// PAGES
+// ─────────────────────────────────────────────
+
+// ── DASHBOARD ──
+const Dashboard = ({ onAlertClick, setPage }) => {
+  const maxCost = Math.max(...MOCK.costByService.map(s => s.mtd));
+  const budgetPct = (MOCK.budget.mtd / MOCK.budget.monthly * 100).toFixed(1);
+  const criticalAlerts = MOCK.alerts.filter(a => a.severity === "critical").length;
+
+  return (
+    <div className="p-5 space-y-4">
+      {/* Primary KPI row */}
+      <div className="grid grid-cols-3 gap-3">
+        {/* MTD */}
+        <Card className="border-l-2 border-l-amber-500">
+          <div className="p-4">
+            <div className="text-[10px] font-semibold text-gray-500 uppercase tracking-wider mb-2">Month-to-Date Cost</div>
+            <div className="font-mono text-2xl font-semibold text-gray-100 tracking-tight mb-1">{fmt(MOCK.budget.mtd)}</div>
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-[11px] text-gray-500">of {fmt(MOCK.budget.monthly)} budget</span>
+              <span className="font-mono text-[12px] font-semibold text-amber-400">{budgetPct}%</span>
+            </div>
+            <div className="h-1.5 bg-gray-800 rounded-full overflow-hidden">
+              <div className="h-full bg-amber-500 rounded-full" style={{ width: `${budgetPct}%` }} />
+            </div>
+          </div>
+        </Card>
+        {/* Forecast */}
+        <Card className="border-l-2 border-l-red-500">
+          <div className="p-4">
+            <div className="text-[10px] font-semibold text-gray-500 uppercase tracking-wider mb-2">Forecasted Month-End</div>
+            <div className="font-mono text-2xl font-semibold text-gray-100 tracking-tight mb-1">{fmt(MOCK.budget.forecast)}</div>
+            <div className="flex items-center gap-2 mb-2">
+              <span className="font-mono text-[11px] font-semibold text-red-400">+{fmt(MOCK.budget.forecast - MOCK.budget.monthly)} over budget</span>
+            </div>
+            <div className="flex items-center gap-1 text-[11px] text-red-400">
+              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/></svg>
+              Projected to exceed budget
+            </div>
+          </div>
+        </Card>
+        {/* MoM */}
+        <Card className="border-l-2 border-l-blue-500">
+          <div className="p-4">
+            <div className="text-[10px] font-semibold text-gray-500 uppercase tracking-wider mb-2">Month-over-Month Change</div>
+            <div className="font-mono text-2xl font-semibold text-gray-100 tracking-tight mb-1">+{MOCK.momChange.pct}%</div>
+            <div className="text-[11px] text-gray-500 mb-1">vs Feb 2026 · +{fmt(MOCK.momChange.abs)}</div>
+            <div className="text-[11px] text-gray-600">Top driver: {MOCK.momChange.driver}</div>
+          </div>
+        </Card>
+      </div>
+
+      {/* Trend chart */}
+      <Card>
+        <CardHeader
+          title="Daily Spend — March 2026"
+          sub="Solid = actual · Dashed = forecast · Orange dashed = budget/day"
+        />
+        <div className="px-4 py-3">
+          <TrendChart data={MOCK.monthlyTrend} />
+        </div>
+      </Card>
+
+      {/* Middle row: cost by service + alerts */}
+      <div className="grid grid-cols-2 gap-3">
+        <Card>
+          <CardHeader title="Top Cost Drivers" right={<button className="text-[11px] text-blue-400 hover:text-blue-300" onClick={() => setPage("billing")}>View all →</button>} />
+          <div className="p-4 space-y-3">
+            {MOCK.costByService.map(s => (
+              <div key={s.id}>
+                <div className="flex items-center justify-between mb-1">
+                  <div className="flex items-center gap-2">
+                    <span className="w-2 h-2 rounded-sm flex-shrink-0" style={{ background: s.color }} />
+                    <span className="text-[12px] text-gray-300">{s.name}</span>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <span className="font-mono text-[12px] text-gray-200">{fmt(s.mtd)}</span>
+                    <MomBadge val={s.mom} />
+                  </div>
+                </div>
+                <CostBar value={s.mtd} max={maxCost} color={s.color} />
+              </div>
+            ))}
+          </div>
+        </Card>
+
+        <div className="space-y-3">
+          {/* Active alerts */}
+          <Card>
+            <CardHeader
+              title="Active Alerts"
+              right={
+                <>
+                  <Badge variant="critical">{criticalAlerts} critical</Badge>
+                  <button className="text-[11px] text-blue-400 hover:text-blue-300" onClick={() => setPage("alerts")}>View all →</button>
+                </>
+              }
+            />
+            <div>
+              {MOCK.alerts.filter(a => a.status === "open").slice(0, 4).map(a => (
+                <div key={a.id} className="flex items-start gap-3 px-4 py-3 border-b border-gray-800 last:border-0 cursor-pointer hover:bg-gray-800/50 transition-colors" onClick={() => onAlertClick(a)}>
+                  <div className={`w-0.5 self-stretch rounded flex-shrink-0 ${a.severity === "critical" ? "bg-red-500" : a.severity === "warning" ? "bg-amber-500" : "bg-blue-500"}`} />
+                  <div className="flex-1 min-w-0">
+                    <div className="text-[12px] font-medium text-gray-200 truncate">{a.title}</div>
+                    <div className="text-[11px] text-gray-500 mt-0.5">{a.resource} · {a.time}</div>
+                  </div>
+                  {a.cost > 0 && <span className="font-mono text-[11px] text-red-400 flex-shrink-0">{fmt(a.cost)}</span>}
+                </div>
+              ))}
+            </div>
+          </Card>
+
+          {/* KPI summary */}
+          <Card>
+            <CardHeader
+              title="KPI Health"
+              right={<button className="text-[11px] text-blue-400 hover:text-blue-300" onClick={() => setPage("kpi")}>Full report →</button>}
+            />
+            <div className="p-3 space-y-2">
+              {MOCK.kpis.filter(k => k.status !== "on-track").slice(0, 4).map(k => (
+                <div key={k.id} className="flex items-center justify-between">
+                  <div className="flex items-center gap-2 min-w-0">
+                    <Badge variant={k.status}>{k.status === "critical" ? "AT RISK" : "WARN"}</Badge>
+                    <span className="text-[11px] text-gray-400 truncate">{k.name}</span>
+                  </div>
+                  <span className={`font-mono text-[12px] font-semibold ${k.status === "critical" ? "text-red-400" : "text-amber-400"}`}>{k.actual}%</span>
+                </div>
+              ))}
+            </div>
+          </Card>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// ── EC2 INSTANCES ──
+const EC2Page = () => {
+  const [selected, setSelected] = useState(null);
+  const [filter, setFilter] = useState("all");
+
+  const filtered = MOCK.instances.filter(i => filter === "all" || i.status === filter);
+
+  return (
+    <div className="flex h-full">
+      {/* List */}
+      <div className="flex-1 overflow-y-auto">
+        <div className="p-5">
+          {/* Filter bar */}
+          <div className="flex items-center gap-3 mb-4">
+            <span className="text-[11px] text-gray-500">Status:</span>
+            {["all", "running", "stopped", "pending"].map(s => (
+              <button key={s} onClick={() => setFilter(s)}
+                className={`px-3 py-1 rounded text-[11px] font-medium capitalize transition-colors ${filter === s ? "bg-blue-600 text-white" : "bg-gray-800 text-gray-400 hover:bg-gray-700"}`}>
+                {s}
+              </button>
+            ))}
+            <span className="text-[11px] text-gray-600 ml-auto">{filtered.length} instances</span>
+          </div>
+
+          {/* Table */}
+          <Card>
+            <div className="overflow-x-auto">
+              <table className="w-full text-[12px]">
+                <thead>
+                  <tr className="border-b border-gray-800">
+                    {["Instance", "Type", "Region", "Status", "CPU", "Cost / MTD", "Tag", "24h Trend", ""].map(h => (
+                      <th key={h} className="px-4 py-3 text-left text-[10px] font-semibold text-gray-500 uppercase tracking-wider whitespace-nowrap">{h}</th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {filtered.map(inst => (
+                    <tr key={inst.id}
+                      className={`border-b border-gray-800/50 hover:bg-gray-800/40 cursor-pointer transition-colors ${selected?.id === inst.id ? "bg-blue-950/30 border-l-2 border-l-blue-500" : ""}`}
+                      onClick={() => setSelected(inst)}>
+                      <td className="px-4 py-3">
+                        <div className="font-medium text-gray-200">{inst.name}</div>
+                        <div className="font-mono text-[10px] text-gray-600">{inst.id.slice(0, 18)}…</div>
+                      </td>
+                      <td className="px-4 py-3 font-mono text-gray-400">{inst.type}</td>
+                      <td className="px-4 py-3 text-gray-400">{inst.region}</td>
+                      <td className="px-4 py-3">
+                        <div className="flex items-center gap-1.5">
+                          <StatusDot status={inst.status} />
+                          <span className="capitalize text-gray-400">{inst.status}</span>
+                        </div>
+                      </td>
+                      <td className="px-4 py-3">
+                        <span className={`font-mono font-semibold ${inst.cpu > 80 ? "text-red-400" : inst.cpu > 60 ? "text-amber-400" : "text-gray-300"}`}>
+                          {inst.cpu > 0 ? `${inst.cpu}%` : "—"}
+                        </span>
+                      </td>
+                      <td className="px-4 py-3 font-mono text-gray-300">{fmt(inst.cost)}</td>
+                      <td className="px-4 py-3 font-mono text-[11px] text-gray-500">{inst.tag}</td>
+                      <td className="px-4 py-3">
+                        <Sparkline data={inst.trend} color={inst.cpu > 80 ? "#EF4444" : "#3B82F6"} height={24} />
+                      </td>
+                      <td className="px-4 py-3 text-blue-400 text-[11px]">View →</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </Card>
+        </div>
+      </div>
+
+      {/* Detail drawer */}
+      <Drawer open={!!selected} onClose={() => setSelected(null)}>
+        {selected && (
+          <div className="p-5 space-y-5">
+            {/* Header */}
+            <div>
+              <div className="flex items-center gap-2 mb-1">
+                <StatusDot status={selected.status} />
+                <h2 className="text-[16px] font-semibold text-gray-100">{selected.name}</h2>
+              </div>
+              <div className="font-mono text-[11px] text-gray-500">{selected.id}</div>
+            </div>
+
+            {/* Stats grid */}
+            <div className="grid grid-cols-2 gap-2">
+              {[
+                { label: "Instance Type", val: selected.type },
+                { label: "Region / AZ", val: selected.region },
+                { label: "Uptime", val: selected.uptime },
+                { label: "Tag", val: selected.tag },
+                { label: "MTD Cost", val: fmt(selected.cost) },
+                { label: "Status", val: selected.status },
+              ].map(({ label, val }) => (
+                <div key={label} className="bg-gray-800/50 rounded p-3">
+                  <div className="text-[10px] text-gray-500 uppercase tracking-wide mb-1">{label}</div>
+                  <div className="font-mono text-[12px] text-gray-200 capitalize">{val}</div>
+                </div>
+              ))}
+            </div>
+
+            {/* CPU utilization */}
+            <div>
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-[11px] text-gray-500 uppercase tracking-wide">CPU Utilization</span>
+                <span className={`font-mono text-[14px] font-semibold ${selected.cpu > 80 ? "text-red-400" : selected.cpu > 60 ? "text-amber-400" : "text-emerald-400"}`}>
+                  {selected.cpu > 0 ? `${selected.cpu}%` : "—"}
+                </span>
+              </div>
+              {selected.cpu > 0 && (
+                <div className="h-2 bg-gray-800 rounded-full overflow-hidden">
+                  <div className="h-full rounded-full" style={{ width: `${selected.cpu}%`, background: selected.cpu > 80 ? "#EF4444" : selected.cpu > 60 ? "#F59E0B" : "#22C55E" }} />
+                </div>
+              )}
+              <div className="mt-3">
+                <div className="text-[11px] text-gray-500 mb-2">24h Trend</div>
+                <Sparkline data={selected.trend} color={selected.cpu > 80 ? "#EF4444" : "#3B82F6"} height={40} />
+              </div>
+            </div>
+
+            {/* Recommendation */}
+            <div className="bg-blue-950/40 border border-blue-900/50 rounded-lg p-4">
+              <div className="text-[10px] font-semibold text-blue-400 uppercase tracking-wider mb-2">Optimization Recommendation</div>
+              <div className="text-[12px] text-gray-300 leading-relaxed">{selected.recommendation}</div>
+              <button className="mt-3 text-[11px] bg-gray-800 border border-gray-700 rounded px-3 py-1.5 text-gray-300 hover:border-gray-500 hover:text-white transition-colors">
+                Create optimization ticket →
+              </button>
+            </div>
+
+            {/* Memory */}
+            {selected.mem > 0 && (
+              <div>
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-[11px] text-gray-500 uppercase tracking-wide">Memory</span>
+                  <span className="font-mono text-[13px] text-gray-300">{selected.mem}%</span>
+                </div>
+                <div className="h-1.5 bg-gray-800 rounded-full overflow-hidden">
+                  <div className="h-full rounded-full bg-purple-500" style={{ width: `${selected.mem}%` }} />
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+      </Drawer>
+    </div>
+  );
+};
+
+// ── ALERTS ──
+const AlertsPage = () => {
+  const [selected, setSelected] = useState(null);
+  const [filter, setFilter] = useState("all");
+
+  const filtered = MOCK.alerts.filter(a => filter === "all" || a.severity === filter);
+
+  return (
+    <div className="flex h-full">
+      <div className="flex-1 overflow-y-auto p-5">
+        <div className="flex items-center gap-3 mb-4">
+          <span className="text-[11px] text-gray-500">Severity:</span>
+          {["all", "critical", "warning", "info"].map(s => (
+            <button key={s} onClick={() => setFilter(s)}
+              className={`px-3 py-1 rounded text-[11px] font-medium capitalize transition-colors ${filter === s ? "bg-blue-600 text-white" : "bg-gray-800 text-gray-400 hover:bg-gray-700"}`}>
+              {s}
+            </button>
+          ))}
+          <div className="ml-auto flex gap-2">
+            <Badge variant="critical">{MOCK.alerts.filter(a => a.severity === "critical").length} critical</Badge>
+            <Badge variant="warning">{MOCK.alerts.filter(a => a.severity === "warning").length} warning</Badge>
+          </div>
+        </div>
+
+        <div className="space-y-2">
+          {filtered.map(a => (
+            <Card key={a.id} onClick={() => setSelected(a)}
+              className={selected?.id === a.id ? "border-blue-700 bg-blue-950/10" : ""}>
+              <div className="flex items-start gap-3 p-4">
+                <div className={`w-0.5 self-stretch rounded flex-shrink-0 ${a.severity === "critical" ? "bg-red-500" : a.severity === "warning" ? "bg-amber-500" : "bg-blue-500"}`} />
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-start justify-between gap-2">
+                    <div>
+                      <div className="text-[13px] font-medium text-gray-200">{a.title}</div>
+                      <div className="text-[11px] text-gray-500 mt-0.5">{a.resource} · {a.region} · {a.time}</div>
+                    </div>
+                    <div className="flex items-center gap-2 flex-shrink-0">
+                      {a.cost > 0 && <span className="font-mono text-[12px] text-red-400 font-semibold">{fmt(a.cost)}</span>}
+                      <Badge variant={a.severity}>{a.severity}</Badge>
+                      <Badge variant={a.status}>{a.status}</Badge>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </Card>
+          ))}
+        </div>
+      </div>
+
+      <Drawer open={!!selected} onClose={() => setSelected(null)}>
+        {selected && (
+          <div className="p-5 space-y-5">
+            <div>
+              <div className="flex items-center gap-2 mb-2">
+                <Badge variant={selected.severity}>{selected.severity}</Badge>
+                <Badge variant={selected.status}>{selected.status}</Badge>
+              </div>
+              <h2 className="text-[15px] font-semibold text-gray-100 mb-1">{selected.title}</h2>
+              <div className="font-mono text-[11px] text-gray-500">{selected.id} · {selected.time}</div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-2">
+              <div className="bg-gray-800/50 rounded p-3">
+                <div className="text-[10px] text-gray-500 uppercase tracking-wide mb-1">Affected Resource</div>
+                <div className="font-mono text-[12px] text-gray-200">{selected.resource}</div>
+              </div>
+              <div className="bg-gray-800/50 rounded p-3">
+                <div className="text-[10px] text-gray-500 uppercase tracking-wide mb-1">Region</div>
+                <div className="font-mono text-[12px] text-gray-200">{selected.region}</div>
+              </div>
+              {selected.cost > 0 && (
+                <div className="bg-red-950/40 rounded p-3 col-span-2 border border-red-900/50">
+                  <div className="text-[10px] text-gray-500 uppercase tracking-wide mb-1">Estimated Cost Impact</div>
+                  <div className="font-mono text-[16px] font-semibold text-red-400">{fmt(selected.cost)}</div>
+                </div>
+              )}
+            </div>
+
+            <div className="bg-gray-800/50 rounded-lg p-4">
+              <div className="text-[10px] font-semibold text-gray-400 uppercase tracking-wider mb-2">Root Cause Analysis</div>
+              <p className="text-[12px] text-gray-300 leading-relaxed">{selected.cause}</p>
+            </div>
+
+            <div className="bg-blue-950/40 border border-blue-900/50 rounded-lg p-4">
+              <div className="text-[10px] font-semibold text-blue-400 uppercase tracking-wider mb-2">Recommended Actions</div>
+              <div className="space-y-1.5">
+                {selected.action.split(". ").filter(Boolean).map((step, i) => (
+                  <div key={i} className="flex gap-2 text-[12px] text-gray-300">
+                    <span className="font-mono text-blue-500 flex-shrink-0">{i + 1}.</span>
+                    <span>{step.replace(/^\d\. /, "")}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="flex gap-2">
+              <button className="flex-1 bg-blue-600 hover:bg-blue-500 text-white text-[12px] font-medium rounded px-3 py-2 transition-colors">
+                Acknowledge
+              </button>
+              <button className="flex-1 bg-gray-800 hover:bg-gray-700 text-gray-300 text-[12px] font-medium rounded px-3 py-2 transition-colors">
+                Create ticket
+              </button>
+            </div>
+          </div>
+        )}
+      </Drawer>
+    </div>
+  );
+};
+
+// ── BILLING ──
+const BillingPage = () => {
+  const [expanded, setExpanded] = useState(null);
+  const [dimFilter, setDimFilter] = useState("service");
+  const budgetPct = (MOCK.budget.mtd / MOCK.budget.monthly * 100).toFixed(1);
+
+  return (
+    <div className="p-5 space-y-4 overflow-y-auto">
+      {/* Top metrics */}
+      <div className="grid grid-cols-3 gap-3">
+        <Card className="border-l-2 border-l-amber-500 p-4">
+          <div className="text-[10px] text-gray-500 uppercase tracking-wider mb-2">Month-to-Date</div>
+          <div className="font-mono text-2xl font-semibold text-gray-100">{fmt(MOCK.budget.mtd)}</div>
+          <div className="text-[11px] text-gray-500 mt-1">Mar 1–7 · avg {fmt(Math.round(MOCK.budget.mtd / 7))}/day</div>
+        </Card>
+        <Card className="border-l-2 border-l-red-500 p-4">
+          <div className="text-[10px] text-gray-500 uppercase tracking-wider mb-2">Forecasted Month-End</div>
+          <div className="font-mono text-2xl font-semibold text-red-400">{fmt(MOCK.budget.forecast)}</div>
+          <div className="text-[11px] text-red-400 mt-1">+{fmt(MOCK.budget.forecast - MOCK.budget.monthly)} vs budget</div>
+        </Card>
+        <Card className="border-l-2 border-l-blue-500 p-4">
+          <div className="text-[10px] text-gray-500 uppercase tracking-wider mb-2">Budget Utilization</div>
+          <div className="font-mono text-2xl font-semibold text-gray-100">{budgetPct}%</div>
+          <div className="h-1.5 bg-gray-800 rounded-full mt-2 overflow-hidden">
+            <div className="h-full rounded-full bg-amber-500" style={{ width: `${budgetPct}%` }} />
+          </div>
+          <div className="text-[11px] text-gray-500 mt-1">{fmt(MOCK.budget.monthly)} total budget</div>
+        </Card>
+      </div>
+
+      {/* Dimension filter */}
+      <div className="flex items-center gap-3">
+        <span className="text-[11px] text-gray-500">View by:</span>
+        {["service", "region", "tag"].map(d => (
+          <button key={d} onClick={() => setDimFilter(d)}
+            className={`px-3 py-1 rounded text-[11px] font-medium capitalize transition-colors ${dimFilter === d ? "bg-blue-600 text-white" : "bg-gray-800 text-gray-400 hover:bg-gray-700"}`}>
+            {d}
+          </button>
+        ))}
+      </div>
+
+      {/* Cost breakdown table */}
+      <Card>
+        <CardHeader title="Cost Breakdown" sub="Click a service to expand breakdown" />
+        <div>
+          {MOCK.costByService.map(s => (
+            <div key={s.id}>
+              <div
+                className={`flex items-center gap-3 px-4 py-3 border-b border-gray-800 cursor-pointer hover:bg-gray-800/50 transition-colors ${expanded === s.id ? "bg-gray-800/30" : ""}`}
+                onClick={() => setExpanded(expanded === s.id ? null : s.id)}
+              >
+                <span className="w-2.5 h-2.5 rounded-sm flex-shrink-0" style={{ background: s.color }} />
+                <span className="text-[13px] font-medium text-gray-200 flex-1">{s.name}</span>
+                <div className="flex items-center gap-4">
+                  <div className="w-28 hidden sm:block">
+                    <CostBar value={s.mtd} max={MOCK.costByService[0].mtd} color={s.color} />
+                  </div>
+                  <span className="font-mono text-[13px] text-gray-200 w-20 text-right">{fmt(s.mtd)}</span>
+                  <MomBadge val={s.mom} />
+                  <span className="text-gray-600 text-[12px] w-4">{expanded === s.id ? "▲" : "▼"}</span>
+                </div>
+              </div>
+
+              {expanded === s.id && (
+                <div className="bg-gray-950/80 border-b border-gray-800">
+                  {s.breakdown.map((b, i) => (
+                    <div key={i} className="flex items-center gap-3 px-8 py-2.5 border-b border-gray-800/50 last:border-0">
+                      <span className="text-[11px] text-gray-400 flex-1">{b.name}</span>
+                      <span className="font-mono text-[12px] text-gray-300 w-20 text-right">{fmt(b.cost)}</span>
+                      <MomBadge val={b.mom} />
+                      <div className="w-4" />
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+      </Card>
+    </div>
+  );
+};
+
+// ── KPI TRACKER ──
+const KPIPage = () => {
+  const [expanded, setExpanded] = useState(null);
+
+  const sorted = [...MOCK.kpis].sort((a, b) => {
+    const order = { critical: 0, warning: 1, "on-track": 2 };
+    return order[a.status] - order[b.status];
+  });
+
+  return (
+    <div className="p-5 space-y-4 overflow-y-auto">
+      <div className="flex items-center gap-2 mb-2">
+        <Badge variant="critical">{MOCK.kpis.filter(k => k.status === "critical").length} at risk</Badge>
+        <Badge variant="warning">{MOCK.kpis.filter(k => k.status === "warning").length} warning</Badge>
+        <Badge variant="on-track">{MOCK.kpis.filter(k => k.status === "on-track").length} on track</Badge>
+        <span className="text-[11px] text-gray-500 ml-1">At-risk items sorted to top</span>
+      </div>
+
+      <div className="space-y-2">
+        {sorted.map(k => (
+          <Card key={k.id} className={expanded === k.id ? "border-blue-700" : ""}>
+            <div
+              className="flex items-center gap-4 px-4 py-3 cursor-pointer hover:bg-gray-800/40 transition-colors"
+              onClick={() => setExpanded(expanded === k.id ? null : k.id)}
+            >
+              <Badge variant={k.status}>{k.status === "on-track" ? "ON TRACK" : k.status === "critical" ? "AT RISK" : "WARNING"}</Badge>
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center justify-between mb-1">
+                  <span className="text-[13px] font-medium text-gray-200">{k.name}</span>
+                  <div className="flex items-center gap-3">
+                    <span className="text-[11px] text-gray-500">Goal: <span className="font-mono text-gray-400">{k.goal}</span></span>
+                    <span className={`font-mono text-[14px] font-semibold ${k.status === "critical" ? "text-red-400" : k.status === "warning" ? "text-amber-400" : "text-emerald-400"}`}>
+                      {k.actual}%
+                    </span>
+                  </div>
+                </div>
+                <KpiBar actual={k.actual} goal={k.goalVal} dir={k.dir} status={k.status} />
+              </div>
+              {k.savings > 0 && (
+                <div className="text-right flex-shrink-0">
+                  <div className="text-[10px] text-gray-500">Est. savings</div>
+                  <div className="font-mono text-[12px] text-emerald-400">{fmt(k.savings)}/mo</div>
+                </div>
+              )}
+              <span className="text-gray-600 text-[12px] flex-shrink-0">{expanded === k.id ? "▲" : "▼"}</span>
+            </div>
+
+            {expanded === k.id && (
+              <div className="border-t border-gray-800 p-4 space-y-4">
+                {k.affectedList.length > 0 && (
+                  <div>
+                    <div className="text-[10px] font-semibold text-gray-500 uppercase tracking-wider mb-2">
+                      Affected Resources ({k.affected || k.affectedList.length})
+                    </div>
+                    <div className="space-y-1">
+                      {k.affectedList.map((item, i) => (
+                        <div key={i} className="flex items-center gap-2 px-3 py-1.5 bg-gray-800/50 rounded font-mono text-[11px] text-gray-400">
+                          <span className="w-1.5 h-1.5 rounded-full bg-red-500 flex-shrink-0" />
+                          {item}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                <div className="bg-blue-950/40 border border-blue-900/50 rounded-lg p-4">
+                  <div className="text-[10px] font-semibold text-blue-400 uppercase tracking-wider mb-2">Optimization Suggestion</div>
+                  <p className="text-[12px] text-gray-300 leading-relaxed">{k.suggestion}</p>
+                  {k.savings > 0 && (
+                    <div className="mt-3 flex items-center gap-2">
+                      <span className="text-[11px] text-gray-500">Estimated savings if resolved:</span>
+                      <span className="font-mono text-[13px] font-semibold text-emerald-400">{fmt(k.savings)}/mo</span>
+                    </div>
+                  )}
+                </div>
+
+                <button className="w-full text-[12px] bg-gray-800 border border-gray-700 rounded px-3 py-2 text-gray-300 hover:border-gray-500 hover:text-white transition-colors">
+                  Create optimization ticket →
+                </button>
+              </div>
+            )}
+          </Card>
+        ))}
+      </div>
+    </div>
+  );
+};
+
+// ─────────────────────────────────────────────
+// MAIN APP
+// ─────────────────────────────────────────────
+function App() {
+  const [page, setPage] = useState("dashboard");
+  const [region, setRegion] = useState("All regions");
+  const [timeRange, setTimeRange] = useState("Mar 2026");
+  const [alertDrawer, setAlertDrawer] = useState(null);
+  const [newAlertModal, setNewAlertModal] = useState(false);
+  const [alertForm, setAlertForm] = useState({ name: "", service: "EC2", threshold: "", severity: "warning" });
+  const [alertSaved, setAlertSaved] = useState(false);
+
+  const criticalCount = MOCK.alerts.filter(a => a.severity === "critical" && a.status === "open").length;
+
+  const navItems = [
+    { id: "dashboard", label: "Overview", icon: <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="1.8" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg> },
+    { id: "alerts", label: "Alerts", badge: criticalCount, icon: <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="1.8" viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg> },
+    { id: "ec2", label: "EC2 Instances", icon: <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="1.8" viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="12" y1="17" x2="12" y2="21"/></svg> },
+    { id: "billing", label: "Billing", icon: <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="1.8" viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg> },
+    { id: "kpi", label: "KPI Tracker", icon: <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="1.8" viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg> },
+  ];
+
+  const handleSaveAlert = () => {
+    setAlertSaved(true);
+    setTimeout(() => { setAlertSaved(false); setNewAlertModal(false); setAlertForm({ name: "", service: "EC2", threshold: "", severity: "warning" }); }, 1200);
+  };
+
+  const pageTitle = { dashboard: "FinOps Overview", alerts: "Alerts", ec2: "EC2 Instances", billing: "Billing / Cost Explorer", kpi: "KPI Tracker" };
+
+  return (
+    <div className="flex h-screen bg-gray-950 text-gray-300 font-sans overflow-hidden">
+
+      {/* Sidebar */}
+      <aside className="w-48 flex-shrink-0 bg-gray-950 border-r border-gray-800 flex flex-col">
+        {/* Logo */}
+        <div className="flex items-center gap-2.5 px-4 py-4 border-b border-gray-800">
+          <div className="w-7 h-7 bg-blue-600 rounded-md flex items-center justify-center flex-shrink-0">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg>
+          </div>
+          <div>
+            <div className="text-[13px] font-semibold text-gray-100 leading-tight">CloudView</div>
+            <div className="text-[10px] font-mono text-gray-600">FinOps Platform</div>
+          </div>
+        </div>
+
+        {/* Nav */}
+        <nav className="flex-1 py-3 px-2">
+          <div className="text-[9px] font-mono text-gray-700 uppercase tracking-widest px-2 py-1.5 mb-1">Navigation</div>
+          {navItems.map(item => (
+            <button key={item.id} onClick={() => setPage(item.id)}
+              className={`w-full flex items-center justify-between px-2.5 py-2 rounded text-[12px] font-medium mb-0.5 transition-colors ${page === item.id ? "bg-blue-600/20 text-blue-300 border border-blue-800/50" : "text-gray-500 hover:text-gray-200 hover:bg-gray-800/60"}`}>
+              <div className="flex items-center gap-2.5">
+                <span className={page === item.id ? "text-blue-400" : "text-gray-600"}>{item.icon}</span>
+                {item.label}
+              </div>
+              {item.badge > 0 && (
+                <span className="bg-red-900 text-red-400 font-mono text-[9px] font-bold px-1.5 py-0.5 rounded">{item.badge}</span>
+              )}
+            </button>
+          ))}
+        </nav>
+
+        {/* Status */}
+        <div className="px-4 py-3 border-t border-gray-800">
+          <div className="flex items-center gap-1.5">
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+            <span className="font-mono text-[10px] text-gray-600">Live · synced 2m ago</span>
+          </div>
+        </div>
+      </aside>
+
+      {/* Main */}
+      <div className="flex-1 flex flex-col overflow-hidden">
+
+        {/* Topbar */}
+        <header className="flex items-center justify-between px-5 py-3 border-b border-gray-800 bg-gray-950 flex-shrink-0">
+          <div className="flex items-center gap-3">
+            <h1 className="text-[14px] font-semibold text-gray-100">{pageTitle[page]}</h1>
+            {/* Filter pills */}
+            <div className="flex items-center gap-2">
+              <select value={region} onChange={e => setRegion(e.target.value)}
+                className="bg-gray-800 border border-gray-700 rounded px-2.5 py-1 text-[11px] text-gray-400 focus:outline-none focus:border-blue-600 cursor-pointer">
+                {MOCK.regions.map(r => <option key={r}>{r}</option>)}
+              </select>
+              <select value={timeRange} onChange={e => setTimeRange(e.target.value)}
+                className="bg-gray-800 border border-gray-700 rounded px-2.5 py-1 text-[11px] text-gray-400 focus:outline-none focus:border-blue-600 cursor-pointer">
+                {MOCK.timeRanges.map(t => <option key={t}>{t}</option>)}
+              </select>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <span className="text-[11px] font-mono text-gray-600 mr-1">{region} · {timeRange}</span>
+            <button onClick={() => setNewAlertModal(true)}
+              className="flex items-center gap-1.5 bg-blue-600 hover:bg-blue-500 text-white text-[12px] font-medium rounded px-3 py-1.5 transition-colors">
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+              New Alert
+            </button>
+          </div>
+        </header>
+
+        {/* Page content */}
+        <main className="flex-1 overflow-hidden">
+          {page === "dashboard" && <div className="h-full overflow-y-auto"><Dashboard onAlertClick={setAlertDrawer} setPage={setPage} /></div>}
+          {page === "ec2" && <EC2Page />}
+          {page === "alerts" && <AlertsPage />}
+          {page === "billing" && <div className="h-full overflow-y-auto"><BillingPage /></div>}
+          {page === "kpi" && <div className="h-full overflow-y-auto"><KPIPage /></div>}
+        </main>
+      </div>
+
+      {/* Alert detail drawer (from dashboard click) */}
+      <Drawer open={!!alertDrawer} onClose={() => setAlertDrawer(null)}>
+        {alertDrawer && (
+          <div className="p-5 space-y-5">
+            <div>
+              <div className="flex items-center gap-2 mb-2">
+                <Badge variant={alertDrawer.severity}>{alertDrawer.severity}</Badge>
+                <Badge variant={alertDrawer.status}>{alertDrawer.status}</Badge>
+              </div>
+              <h2 className="text-[15px] font-semibold text-gray-100 mb-1">{alertDrawer.title}</h2>
+              <div className="font-mono text-[11px] text-gray-500">{alertDrawer.id} · {alertDrawer.time}</div>
+            </div>
+            {alertDrawer.cost > 0 && (
+              <div className="bg-red-950/40 border border-red-900/50 rounded-lg p-4">
+                <div className="text-[10px] text-gray-500 uppercase tracking-wide mb-1">Cost Impact</div>
+                <div className="font-mono text-xl font-semibold text-red-400">{fmt(alertDrawer.cost)}</div>
+              </div>
+            )}
+            <div className="bg-gray-800/50 rounded-lg p-4">
+              <div className="text-[10px] font-semibold text-gray-400 uppercase tracking-wider mb-2">Root Cause</div>
+              <p className="text-[12px] text-gray-300 leading-relaxed">{alertDrawer.cause}</p>
+            </div>
+            <div className="bg-blue-950/40 border border-blue-900/50 rounded-lg p-4">
+              <div className="text-[10px] font-semibold text-blue-400 uppercase tracking-wider mb-2">Recommended Actions</div>
+              <div className="space-y-1.5">
+                {alertDrawer.action.split(". ").filter(Boolean).map((step, i) => (
+                  <div key={i} className="flex gap-2 text-[12px] text-gray-300">
+                    <span className="font-mono text-blue-500 flex-shrink-0">{i + 1}.</span>
+                    <span>{step.replace(/^\d\. /, "")}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+            <div className="flex gap-2">
+              <button className="flex-1 bg-blue-600 hover:bg-blue-500 text-white text-[12px] font-medium rounded px-3 py-2 transition-colors">Acknowledge</button>
+              <button className="flex-1 bg-gray-800 hover:bg-gray-700 text-gray-300 text-[12px] font-medium rounded px-3 py-2 transition-colors">Create ticket</button>
+            </div>
+          </div>
+        )}
+      </Drawer>
+
+      {/* New Alert Modal */}
+      <Modal open={newAlertModal} onClose={() => setNewAlertModal(false)}>
+        <div className="bg-gray-900 border border-gray-700 rounded-xl shadow-2xl p-6">
+          <div className="flex items-center justify-between mb-5">
+            <h2 className="text-[15px] font-semibold text-gray-100">Create Alert Rule</h2>
+            <button onClick={() => setNewAlertModal(false)} className="text-gray-500 hover:text-gray-200 text-xl leading-none">×</button>
+          </div>
+
+          <div className="space-y-4">
+            <div>
+              <label className="block text-[11px] font-semibold text-gray-500 uppercase tracking-wider mb-1.5">Alert Name</label>
+              <input value={alertForm.name} onChange={e => setAlertForm({...alertForm, name: e.target.value})}
+                placeholder="e.g. EC2 CPU > 85% for 30min"
+                className="w-full bg-gray-800 border border-gray-700 rounded px-3 py-2 text-[13px] text-gray-200 focus:outline-none focus:border-blue-600 placeholder-gray-600" />
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className="block text-[11px] font-semibold text-gray-500 uppercase tracking-wider mb-1.5">Service</label>
+                <select value={alertForm.service} onChange={e => setAlertForm({...alertForm, service: e.target.value})}
+                  className="w-full bg-gray-800 border border-gray-700 rounded px-3 py-2 text-[13px] text-gray-200 focus:outline-none focus:border-blue-600">
+                  {["EC2", "RDS", "Lambda", "S3", "Billing"].map(s => <option key={s}>{s}</option>)}
+                </select>
+              </div>
+              <div>
+                <label className="block text-[11px] font-semibold text-gray-500 uppercase tracking-wider mb-1.5">Severity</label>
+                <select value={alertForm.severity} onChange={e => setAlertForm({...alertForm, severity: e.target.value})}
+                  className="w-full bg-gray-800 border border-gray-700 rounded px-3 py-2 text-[13px] text-gray-200 focus:outline-none focus:border-blue-600">
+                  {["critical", "warning", "info"].map(s => <option key={s}>{s}</option>)}
+                </select>
+              </div>
+            </div>
+            <div>
+              <label className="block text-[11px] font-semibold text-gray-500 uppercase tracking-wider mb-1.5">Threshold / Condition</label>
+              <input value={alertForm.threshold} onChange={e => setAlertForm({...alertForm, threshold: e.target.value})}
+                placeholder="e.g. Cost > ¥500K/day or CPU > 90%"
+                className="w-full bg-gray-800 border border-gray-700 rounded px-3 py-2 text-[13px] text-gray-200 focus:outline-none focus:border-blue-600 placeholder-gray-600" />
+            </div>
+          </div>
+
+          <div className="flex gap-3 mt-6">
+            <button onClick={handleSaveAlert}
+              className={`flex-1 text-[13px] font-semibold rounded px-4 py-2.5 transition-colors ${alertSaved ? "bg-emerald-600 text-white" : "bg-blue-600 hover:bg-blue-500 text-white"}`}>
+              {alertSaved ? "✓ Alert Created" : "Create Alert"}
+            </button>
+            <button onClick={() => setNewAlertModal(false)}
+              className="flex-1 bg-gray-800 hover:bg-gray-700 text-gray-300 text-[13px] font-medium rounded px-4 py-2.5 transition-colors">
+              Cancel
+            </button>
+          </div>
+        </div>
+      </Modal>
+    </div>
+  );
+}
+
+
+const root = ReactDOM.createRoot(document.getElementById('root'));
+root.render(<App />);
+</script>
+</body>
+</html>
